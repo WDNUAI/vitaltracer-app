@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'components/custom_textfield.dart';
 import 'home_screen.dart';
 
-
 class SignScreen extends StatelessWidget {
   const SignScreen({super.key});
 
@@ -84,6 +83,3 @@ class SignScreenContent extends StatelessWidget {
     );
   }
 }
-
-
-

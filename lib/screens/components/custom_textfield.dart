@@ -23,7 +23,6 @@ class CustomTextField extends StatelessWidget {
           hintText: hintText,
           enabledBorder: const OutlineInputBorder(
             borderSide: BorderSide(color: Colors.white),
-
           ),
           focusedBorder: const OutlineInputBorder(
             borderSide: BorderSide(color: Colors.grey),
