@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'detailed_view_screen.dart';
 import 'components/health_data_tile.dart';
+import 'hamburger.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -10,7 +11,19 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Vital Tracer Home'),
+        //Create Hamburger Menu
+        leading: Builder(
+          builder: (context) => HamburgerMenu(
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+          ),
+        ),
       ),
+      drawer: HamburgerMenu(
+        onPressed: () {},
+        //When Icon is pressed, call Builddrawer() within hamburger class
+      ).buildDrawer(context),
       backgroundColor: Colors.white,
       body: const HomeScreenContent(),
     );
@@ -40,7 +53,6 @@ class HomeScreenContent extends StatelessWidget {
               child: const Text('Connect'),
             ),
             Expanded(
-
               child: GridView.count(
                 crossAxisCount: 2,
                 crossAxisSpacing: 16.0,
@@ -53,7 +65,8 @@ class HomeScreenContent extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const DetailedViewScreen()),
+                        MaterialPageRoute(
+                            builder: (context) => const DetailedViewScreen()),
                       );
                     },
                   ),
@@ -64,7 +77,8 @@ class HomeScreenContent extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const DetailedViewScreen()),
+                        MaterialPageRoute(
+                            builder: (context) => const DetailedViewScreen()),
                       );
                     },
                   ),
@@ -75,19 +89,17 @@ class HomeScreenContent extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const DetailedViewScreen()),
+                        MaterialPageRoute(
+                            builder: (context) => const DetailedViewScreen()),
                       );
                     },
                   ),
-
                 ],
               ),
             ),
-
           ],
         ),
       ),
     );
   }
 }
-
