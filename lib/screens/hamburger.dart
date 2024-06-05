@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'detailed_view_screen.dart';
 import 'components/health_data_tile.dart';
+import 'settings.dart';
 
 class HamburgerMenu extends StatelessWidget {
   final VoidCallback onPressed;
@@ -33,8 +34,7 @@ class HamburgerMenu extends StatelessWidget {
                   context); // Close the drawer and open the new context
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => const DetailedViewScreen()),
+                MaterialPageRoute(builder: (context) => const Settings()),
               );
               // to change where the button brings context change above line to desired screen. Import above
             },
