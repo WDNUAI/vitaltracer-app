@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'detailed_view_screen.dart';
 import 'components/health_data_tile.dart';
+import 'hamburger.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -10,7 +11,17 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Vital Tracer Home'),
+        leading: Builder(
+          builder: (context) => HamburgerMenu(
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+          ),
+        ),
       ),
+      drawer: HamburgerMenu(
+        onPressed: () {}, 
+      ).buildDrawer(context),
       backgroundColor: Colors.white,
       body: const HomeScreenContent(),
     );
