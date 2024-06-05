@@ -18,7 +18,6 @@ class HamburgerMenu extends StatelessWidget {
     );
   }
 
-
 //Every time the hamburger is opened we build its view. Below code creates the List view and defines what happens to context after press
   Drawer buildDrawer(BuildContext context) {
     return Drawer(
@@ -30,12 +29,14 @@ class HamburgerMenu extends StatelessWidget {
             //Define what happens on press
             onTap: () {
               // Settings Tap
-              Navigator.pop(context); // Close the drawer and open the new context
-               Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const DetailedViewScreen()),
-                      );
-                      // to change where the button brings context change above line to desired screen. Import above
+              Navigator.pop(
+                  context); // Close the drawer and open the new context
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const DetailedViewScreen()),
+              );
+              // to change where the button brings context change above line to desired screen. Import above
             },
           ),
           //Set Title of Button
@@ -43,27 +44,30 @@ class HamburgerMenu extends StatelessWidget {
             title: const Text('Connections'),
             onTap: () {
               // Connections Tap
-              Navigator.pop(context); // Close the drawer and open the new context
-               Navigator.push( 
-                        context,
-                        MaterialPageRoute(builder: (context) => const DetailedViewScreen()),
-                      );
-              
+              Navigator.pop(
+                  context); // Close the drawer and open the new context
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const DetailedViewScreen()),
+              );
             },
           ),
           //Set Title of Button
           ListTile(
             title: const Text('View Data'),
             onTap: () {
-              // Handle item 3 tap
-              Navigator.pop(context); // Close the drawer and open the new context
-               Navigator.push( 
-                        context,
-                        MaterialPageRoute(builder: (context) => const DetailedViewScreen()),
-                      );
+              //View Data Tap
+              Navigator.pop(
+                  context); // Close the drawer and open the new context
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const DetailedViewScreen()),
+              );
             },
           ),
-  // add more buttons at a later point here
+          // add more buttons at a later point here
         ],
       ),
     );
