@@ -24,7 +24,6 @@ class HomeScreen extends StatelessWidget {
         onPressed: () {},
         //When Icon is pressed, call Builddrawer() within hamburger class
       ).buildDrawer(context),
-      backgroundColor: Colors.white,
       body: const HomeScreenContent(),
     );
   }
