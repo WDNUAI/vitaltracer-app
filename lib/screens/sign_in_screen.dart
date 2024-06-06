@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'components/custom_textfield.dart';
-import 'home_screen.dart';
+import 'user_data_config_screen.dart';
 
 class SignScreen extends StatelessWidget {
   const SignScreen({super.key});
@@ -73,7 +73,8 @@ class SignScreenContent extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const HomeScreen()),
+                MaterialPageRoute(
+                    builder: (context) => const UserDataConfigScreen()),
               );
             },
             child: const Text('Login'),
