@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:vitaltracer_app/screens/user_data_config_screen.dart';
+import 'package:vitaltracer_app/screens/sign_in_screen.dart';
 import 'models/user_info.dart';
 
 void main() => runApp(ChangeNotifierProvider(
@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
-      home: const UserDataConfigScreen(),
+      home: const SignScreen(),
     );
   }
 }

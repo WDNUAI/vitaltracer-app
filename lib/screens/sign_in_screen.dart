@@ -11,7 +11,6 @@ class SignScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Sign In'),
       ),
-      backgroundColor: Colors.white,
       body: const SafeArea(
         child: SignScreenContent(),
       ),
