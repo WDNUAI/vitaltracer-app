@@ -14,9 +14,8 @@ class _BlueoothConnectionsScreenState extends State<BlueoothConnectionsScreen> {
     return ScreenContent(context);
   }
 
-  MaterialApp ScreenContent(BuildContext context) {
-    return MaterialApp(
-        home: Scaffold(
+  Scaffold ScreenContent(BuildContext context) {
+    return Scaffold(
       appBar: AppBar(
         title: const Text('Vital Tracer Home'),
         //Create Hamburger Menu
@@ -57,7 +56,7 @@ class _BlueoothConnectionsScreenState extends State<BlueoothConnectionsScreen> {
               )
             ],
           )),
-    ));
+    );
   }
 
   /* TODO: Refactor getDevices() to implement functionality to display nearby avaliable vitaltracers. */
