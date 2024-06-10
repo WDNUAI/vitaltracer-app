@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'detailed_view_screen.dart';
 import 'components/health_data_tile.dart';
 import 'settings.dart';
+import 'view_detailed_datatype.dart';
 
 class HamburgerMenu extends StatelessWidget {
   final VoidCallback onPressed;
@@ -67,6 +68,16 @@ class HamburgerMenu extends StatelessWidget {
               );
             },
           ),
+          ListTile(
+              title: const Text('View Detailed Data'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const ViewDetailedDatatype()),
+                );
+              }),
           // add more buttons at a later point here
         ],
       ),

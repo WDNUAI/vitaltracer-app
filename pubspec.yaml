@@ -29,5 +29,10 @@ flutter:
     - lib/images/vt1.png
     - lib/images/temp.jpg
     - lib/images/ECGData.png
+    - lib/images/heartrate.png
+    - lib/images/oxygen.png
+    - lib/images/temperature.png
+    - lib/images/blood-pressure.png
+    - lib/images/activity.png
 
 
