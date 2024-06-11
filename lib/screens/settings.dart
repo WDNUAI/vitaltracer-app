@@ -17,12 +17,12 @@ class Settings extends StatelessWidget {
       body: SettingsList(
         sections: [
           SettingsSection(
-            title: Text('General'),
+            title: const Text('General'),
             tiles: <SettingsTile>[
               SettingsTile.navigation(
                 // Handle navigation to send data page
-                leading: Icon(Icons.send),
-                title: Text('Send Data To Professional'),
+                leading: const Icon(Icons.send),
+                title: const Text('Send Data To Professional'),
                 onPressed: (BuildContext context) {
                   //show pop up when pressed - place holder for now as more logic needs to added  ( where do we send data ? input email)
                   showDialog(
@@ -30,8 +30,8 @@ class Settings extends StatelessWidget {
                     builder: (BuildContext context) {
                       //define popup with alert dialog
                       return AlertDialog(
-                        title: Text('Data Sent'),
-                        content: Text('Data from last session sent!'),
+                        title: const Text('Data Sent'),
+                        content: const Text('Data from last session sent!'),
                         actions: [
                           TextButton(
                             onPressed: () {
@@ -39,7 +39,7 @@ class Settings extends StatelessWidget {
                               Navigator.of(context).pop();
                             },
                             //display text to remove dialog box
-                            child: Text('OK'),
+                            child: const Text('OK'),
                           ),
                         ],
                       );
@@ -48,8 +48,8 @@ class Settings extends StatelessWidget {
                 },
               ),
               SettingsTile.navigation(
-                leading: Icon(Icons.watch),
-                title: Text('Connections'),
+                leading: const Icon(Icons.watch),
+                title: const Text('Connections'),
                 onPressed: (BuildContext context) {
                   //pass context and the screen to goto - replace with connections page once made
                   Navigator.push(
@@ -61,8 +61,8 @@ class Settings extends StatelessWidget {
               ),
               SettingsTile.navigation(
                 //Can Modify icons for btn below
-                leading: Icon(Icons.people),
-                title: Text('Input Personal Data'),
+                leading: const Icon(Icons.people),
+                title: const Text('Input Personal Data'),
                 onPressed: (BuildContext context) {
                   // Handle navigation to Input Data Page
                 },
@@ -72,8 +72,8 @@ class Settings extends StatelessWidget {
                 onToggle: (bool value) {},
                 initialValue:
                     false, //dark mode is initially off when booting app
-                leading: Icon(Icons.dark_mode),
-                title: Text('Dark Mode'),
+                leading: const Icon(Icons.dark_mode),
+                title: const Text('Dark Mode'),
               ),
             ],
           ),
