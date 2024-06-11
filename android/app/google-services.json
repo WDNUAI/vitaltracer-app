@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "148480603274",
+    "project_id": "vitaltracer-251ad",
+    "storage_bucket": "vitaltracer-251ad.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:148480603274:android:5848efe784cdf8a01ce973",
+        "android_client_info": {
+          "package_name": "com.example.vitaltracer_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "148480603274-s7c4c19e4beks09vuojbt02g2s0b47re.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3pO6yQmYc43TckaCDXu2IzMg72txCpCw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "148480603274-s7c4c19e4beks09vuojbt02g2s0b47re.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -4,7 +4,7 @@ publish_to: "none"
 version: 1.0.0+1
 
 environment:
-  sdk: ">=3.4.1 <4.0.0"
+  sdk: ">=3.4.0 <4.0.0"
 
 dependencies:
   flutter:
@@ -12,6 +12,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   settings_ui: ^2.0.2
   provider: ^6.0.0
+
 
 dev_dependencies:
   flutter_test:
@@ -21,18 +22,9 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - lib/images/VTlogo.png
-    - lib/images/ecg.png
-    - lib/images/google.png
-    - lib/images/heart.png
-    - lib/images/vt.png
-    - lib/images/vt1.png
-    - lib/images/temp.jpg
-    - lib/images/ECGData.png
-    - lib/images/heartrate.png
-    - lib/images/oxygen.png
-    - lib/images/temperature.png
-    - lib/images/blood-pressure.png
-    - lib/images/activity.png
+
+    - lib/images/
+
+ 
 
 

@@ -7,12 +7,12 @@ class HealthDataTile extends StatelessWidget {
   final VoidCallback onTap;
 
   const HealthDataTile({
-    Key? key,
+    super.key,
     required this.label,
     required this.value,
     required this.imagePath,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
