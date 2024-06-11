@@ -12,9 +12,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Vital Tracer Home'),
-
         //Create Hamburger Menu
-
         leading: Builder(
           builder: (context) => HamburgerMenu(
             onPressed: () {
@@ -25,6 +23,7 @@ class HomeScreen extends StatelessWidget {
       ),
       drawer: HamburgerMenu(
         onPressed: () {},
+        //When Icon is pressed, call Builddrawer() within hamburger class
       ).buildDrawer(context),
       body: const HomeScreenContent(),
     );
@@ -36,30 +35,6 @@ class HomeScreenContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    return LayoutBuilder(builder: (context, constraints) {
-      return SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              const SizedBox(height: 50),
-              Image.asset(
-                'lib/images/vt1.png',
-                height: 200,
-                width: 250,
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  // Connect to device
-                },
-                child: const Text('Connect'),
-              ),
-              const SizedBox(height: 20),
-              GridView.count(
-                shrinkWrap: true,
-                crossAxisCount: constraints.maxWidth > 600 ? 3 : 2,
-
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Center(
@@ -87,15 +62,13 @@ class HomeScreenContent extends StatelessWidget {
             Expanded(
               child: GridView.count(
                 crossAxisCount: 2,
-
                 crossAxisSpacing: 16.0,
                 mainAxisSpacing: 16.0,
-                physics: const NeverScrollableScrollPhysics(),
                 children: [
                   HealthDataTile(
                     label: 'Heart Rate',
                     value: '72 BPM',
-                    imagePath: 'lib/images/heart.webp',
+                    imagePath: 'lib/images/heart.png',
                     onTap: () {
                       Navigator.push(
                         context,
@@ -105,21 +78,9 @@ class HomeScreenContent extends StatelessWidget {
                     },
                   ),
                   HealthDataTile(
-                    label: 'Body Temperature',
+                    label: 'Temperature',
                     value: '36.5 °C',
-                    imagePath: 'lib/images/temp.webp',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const DetailedViewScreen()),
-                      );
-                    },
-                  ),
-                  HealthDataTile(
-                    label: 'Activity',
-                    value: '10,000 steps',
-                    imagePath: 'lib/images/activity.webp',
+                    imagePath: 'lib/images/temp.jpg',
                     onTap: () {
                       Navigator.push(
                         context,
@@ -131,19 +92,7 @@ class HomeScreenContent extends StatelessWidget {
                   HealthDataTile(
                     label: 'ECG',
                     value: 'Normal',
-                    imagePath: 'lib/images/ecg.webp',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const DetailedViewScreen()),
-                      );
-                    },
-                  ),
-                  HealthDataTile(
-                    label: 'SPO2',
-                    value: '92%',
-                    imagePath: 'lib/images/O2.webp',
+                    imagePath: 'lib/images/ecg.png',
                     onTap: () {
                       Navigator.push(
                         context,
@@ -154,10 +103,10 @@ class HomeScreenContent extends StatelessWidget {
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      );
-    });
+      ),
+    );
   }
 }
