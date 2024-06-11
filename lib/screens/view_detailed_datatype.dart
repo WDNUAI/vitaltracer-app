@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'detailed_view_screen.dart';
 import 'package:vitaltracer_app/widgets/data_button.dart';
 import 'package:vitaltracer_app/widgets/data_detailed_view_page.dart';
 

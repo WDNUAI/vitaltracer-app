@@ -55,19 +55,7 @@ class HamburgerMenu extends StatelessWidget {
             },
           ),
           //Set Title of Button
-          ListTile(
-            title: const Text('View Data'),
-            onTap: () {
-              //View Data Tap
-              Navigator.pop(
-                  context); // Close the drawer and open the new context
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const DetailedViewScreen()),
-              );
-            },
-          ),
+
           ListTile(
               title: const Text('View Detailed Data'),
               onTap: () {
