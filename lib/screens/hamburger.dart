@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'detailed_view_screen.dart';
 import 'components/health_data_tile.dart';
 import 'settings.dart';
+
 import 'view_detailed_datatype.dart';
 
 class HamburgerMenu extends StatelessWidget {
