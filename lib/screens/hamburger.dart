@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'detailed_view_screen.dart';
 import 'components/health_data_tile.dart';
 import 'settings.dart';
+import 'home_screen.dart';
 
 class HamburgerMenu extends StatelessWidget {
   final VoidCallback onPressed;
@@ -24,6 +25,19 @@ class HamburgerMenu extends StatelessWidget {
     return Drawer(
       child: ListView(
         children: [
+          ListTile(
+            //Set Title of Button
+            title: const Text('Home'),
+            onTap: () {
+              // Home Tap
+              Navigator.pop(
+                  context); // Close the drawer and open the new context
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const HomeScreen()),
+              );
+            },
+          ),
           //Set Title
           ListTile(
             title: const Text('Settings'),
