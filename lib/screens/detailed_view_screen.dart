@@ -15,7 +15,7 @@ class DetailedViewScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           //Give Title above picture
-          const Text(
+          Text(
             'ECG Data Session 2024-06-04',
             style: TextStyle(
               fontSize: 24,
@@ -24,15 +24,15 @@ class DetailedViewScreen extends StatelessWidget {
           ),
 
           //Add Image - needs to be removed in future
-          const SizedBox(height: 16), // Add space between the title and the image
+          SizedBox(height: 16), // Add space between the title and the image
           //Place Image in center of scrren
           Center(
             child: Image.asset('lib/images/ECGData.png'),
           ),
 
           //Create Title for Previous Sessions
-          const SizedBox(height: 16),
-          const Text(
+          SizedBox(height: 16),
+          Text(
             'Previous Sessions',
             style: TextStyle(
               fontSize: 20,
@@ -41,12 +41,12 @@ class DetailedViewScreen extends StatelessWidget {
           ),
 
           //Create another buttom below graph for older sessions
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           InkWell(
             onTap: () {
               //When this is clicked. ECG Data from this session needs to populate a graph
             },
-            child: const Padding(
+            child: Padding(
               padding: EdgeInsets.all(8),
               child: Text(
                 'Session 2024-06-01',
