@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:vitaltracer_app/screens/Sign_Up_screen.dart';
-import 'package:vitaltracer_app/widgets/sign_up_widget.dart';
 import 'components/custom_textfield.dart';
+import 'user_data_config_screen.dart';
 
 class SignScreen extends StatelessWidget {
   const SignScreen({super.key});
@@ -63,40 +62,24 @@ class SignScreenContent extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        // Handle forgot password logic
+                      },
                       child: const Text('Forgot password?'),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 20),
-              signInSignUpButton(context, true, () {}),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    "Don't have an account? ",
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const SignupScreen()),
-                      );
-                    },
-                    child: const Text(
-                      "Sign up",
-                      style: TextStyle(
-                        color: Colors.blue,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const UserDataConfigScreen()),
+                  );
+                },
+                child: const Text('Login'),
               ),
             ],
           ),
