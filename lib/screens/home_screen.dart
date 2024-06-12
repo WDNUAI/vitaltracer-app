@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'detailed_view_screen.dart';
 import 'components/health_data_tile.dart';
 import 'hamburger.dart';
+import 'bluetooth-connections-screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -49,7 +50,12 @@ class HomeScreenContent extends StatelessWidget {
               ),
               ElevatedButton(
                 onPressed: () {
-                  // Connect to device
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            const BlueoothConnectionsScreen()),
+                  );
                 },
                 child: const Text('Connect'),
               ),

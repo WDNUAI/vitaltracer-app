@@ -3,7 +3,7 @@ import 'detailed_view_screen.dart';
 import 'components/health_data_tile.dart';
 import 'settings.dart';
 import 'home_screen.dart';
-
+import 'bluetooth-connections-screen.dart';
 import 'view_detailed_datatype.dart';
 
 class HamburgerMenu extends StatelessWidget {
@@ -65,7 +65,7 @@ class HamburgerMenu extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const DetailedViewScreen()),
+                    builder: (context) => const BlueoothConnectionsScreen()),
               );
             },
           ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'detailed_view_screen.dart';
+import 'bluetooth-connections-screen.dart';
 
 //documentation on settings widgets here: https://pub.dev/documentation/settings_ui/latest/
 class Settings extends StatelessWidget {
@@ -55,7 +56,8 @@ class Settings extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const DetailedViewScreen()),
+                        builder: (context) =>
+                            const BlueoothConnectionsScreen()),
                   );
                 },
               ),
