@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'detailed_view_screen.dart';
-import 'components/health_data_tile.dart';
 import 'settings.dart';
 import 'home_screen.dart';
 
@@ -12,12 +11,12 @@ class HamburgerMenu extends StatelessWidget {
 //Forced me to use a value that is not null not sure consequences of VoidCallback are - was added using quick fix btn
 
 //Below Code creates clickable icon, position of icon is determined in the class where it is called
-  const HamburgerMenu({required this.onPressed});
+  const HamburgerMenu({super.key, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      icon: Icon(Icons.menu),
+      icon: const Icon(Icons.menu),
       onPressed: onPressed,
     );
   }

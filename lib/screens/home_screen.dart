@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vitaltracer_app/screens/sign_in_screen.dart';
 import 'detailed_view_screen.dart';
 import 'components/health_data_tile.dart';
 import 'hamburger.dart';
@@ -22,6 +23,17 @@ class HomeScreen extends StatelessWidget {
             },
           ),
         ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const SignScreen()),
+              );
+            },
+            icon: const Icon(Icons.logout),
+          ),
+        ],
       ),
       drawer: HamburgerMenu(
         onPressed: () {},
