@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class HealthDataTile extends StatelessWidget {
   final String label;
@@ -19,38 +20,39 @@ class HealthDataTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 150,
-        height: 150,
+        width: 150.w,
+        height: 150.h,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(15.r),
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 5,
-              blurRadius: 7,
-              offset: Offset(0, 3),
+              spreadRadius: 5.r,
+              blurRadius: 7.r,
+              offset: Offset(0, 3.h),
             ),
           ],
         ),
-        padding: const EdgeInsets.all(16.0),
+        padding:  EdgeInsets.all(16.0.w),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
+          children: [ Expanded(
+            child: Image.asset(
               imagePath,
-              height: 100,
-              width: 100,
+              height: 100.h,
+              width: 100.w,
             ),
-            const SizedBox(height: 8),
+          ),
+             SizedBox(height: 8.h),
             Text(
               label,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style:  TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 4),
+             SizedBox(height: 4.h),
             Text(
               value,
-              style: const TextStyle(fontSize: 16),
+              style:  TextStyle(fontSize: 16.sp),
             ),
           ],
         ),
