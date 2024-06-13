@@ -3,6 +3,7 @@ import 'detailed_view_screen.dart';
 import 'components/health_data_tile.dart';
 import 'hamburger.dart';
 import 'bluetooth-connections-screen.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -39,10 +40,10 @@ class HomeScreenContent extends StatelessWidget {
     return LayoutBuilder(builder: (context, constraints) {
       return SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding:  EdgeInsets.all(16.0.w),
           child: Column(
             children: [
-              const SizedBox(height: 50),
+               SizedBox(height: 50.h),
               Image.asset(
                 'lib/images/vt1.png',
                 height: 200,
@@ -59,12 +60,12 @@ class HomeScreenContent extends StatelessWidget {
                 },
                 child: const Text('Connect'),
               ),
-              const SizedBox(height: 20),
+               SizedBox(height: 20.h),
               GridView.count(
                 shrinkWrap: true,
                 crossAxisCount: constraints.maxWidth > 600 ? 3 : 2,
-                crossAxisSpacing: 16.0,
-                mainAxisSpacing: 16.0,
+                crossAxisSpacing: 16.0.w,
+                mainAxisSpacing: 16.0.h,
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
                   HealthDataTile(
