@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'hamburger.dart';
 
-class BlueoothConnectionsScreen extends StatefulWidget {
-  const BlueoothConnectionsScreen({super.key});
+class BluetoothConnectionsScreen extends StatefulWidget {
+  const BluetoothConnectionsScreen({super.key});
 
   @override
-  State<BlueoothConnectionsScreen> createState() =>
-      _BlueoothConnectionsScreenState();
+  State<BluetoothConnectionsScreen> createState() =>
+      _BluetoothConnectionsScreenState();
 }
 
-class _BlueoothConnectionsScreenState extends State<BlueoothConnectionsScreen> {
+class _BluetoothConnectionsScreenState extends State<BluetoothConnectionsScreen> {
+
   Widget build(BuildContext context) {
     return ScreenContent(context);
   }
@@ -70,7 +71,7 @@ class _BlueoothConnectionsScreenState extends State<BlueoothConnectionsScreen> {
           clipBehavior: Clip.hardEdge,
           child: InkWell(
               splashColor:
-                  const Color.fromARGB(255, 199, 214, 226).withAlpha(30),
+              const Color.fromARGB(255, 199, 214, 226).withAlpha(30),
               onTap: () {
                 // TODO: device pairing functionality
               },

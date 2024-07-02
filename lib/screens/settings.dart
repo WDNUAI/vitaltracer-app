@@ -57,7 +57,7 @@ class Settings extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                         builder: (context) =>
-                            const BlueoothConnectionsScreen()),
+                            const BluetoothConnectionsScreen()),
                   );
                 },
               ),
