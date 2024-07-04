@@ -16,9 +16,8 @@ dependencies:
   provider: ^6.0.0
   flutter_screenutil: ^5.0.0
   firebase_core: ^3.1.1
+  cloud_firestore: ^5.0.2
 
-
-  
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -27,9 +26,4 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-
     - lib/images/
-
- 
-
-
