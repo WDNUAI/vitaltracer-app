@@ -55,7 +55,7 @@ class HomeScreenContent extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                         builder: (context) =>
-                            const BlueoothConnectionsScreen()),
+                            const BluetoothConnectionsScreen()),
                   );
                 },
                 child: const Text('Connect'),

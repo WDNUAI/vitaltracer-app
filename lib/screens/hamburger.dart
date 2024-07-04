@@ -65,7 +65,7 @@ class HamburgerMenu extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const BlueoothConnectionsScreen()),
+                    builder: (context) => const BluetoothConnectionsScreen()),
               );
             },
           ),
