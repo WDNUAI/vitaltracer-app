@@ -1,5 +1,10 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'hamburger.dart';
+import 'dart:developer';
+import '../services/bluetooth.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 class BluetoothConnectionsScreen extends StatefulWidget {
   const BluetoothConnectionsScreen({super.key});
@@ -9,7 +14,10 @@ class BluetoothConnectionsScreen extends StatefulWidget {
       _BluetoothConnectionsScreenState();
 }
 
-class _BluetoothConnectionsScreenState extends State<BluetoothConnectionsScreen> {
+class _BluetoothConnectionsScreenState
+    extends State<BluetoothConnectionsScreen> {
+  Future<List<BluetoothDevice>>? devices;
+  int previousDeviceCount = 0;
 
   Widget build(BuildContext context) {
     return ScreenContent(context);
@@ -43,15 +51,20 @@ class _BluetoothConnectionsScreenState extends State<BluetoothConnectionsScreen>
                 children: [
                   Text("Select a VT device:", style: TextStyle(fontSize: 30)),
                   Spacer(),
-                  getDevices(context),
+                  SingleChildScrollView(
+                    child: getDevices(context),
+                  ),
                   Spacer(),
                   // 'Search' Button
                   ElevatedButton(
                     onPressed: () {
-                      /*TODO: Implement search functionality*/
+                      setState(() {
+                        devices = searchBle(this);
+                      });
                     },
                     child: Padding(
-                        padding: EdgeInsets.all(20.0), child: Text("Search")),
+                        padding: EdgeInsets.all(20.0),
+                        child: Text("Search")),
                   ),
                 ],
               )
@@ -60,38 +73,60 @@ class _BluetoothConnectionsScreenState extends State<BluetoothConnectionsScreen>
     );
   }
 
-  /* TODO: Refactor getDevices() to implement functionality to display nearby avaliable vitaltracers. */
+  /// Returns a list of Cards representing the discovered vitaltracer devices.
+  /// TODO: Make this content scrollable.
   Widget getDevices(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
-    final width = MediaQuery.of(context).size.width;
-    List<Widget> cards = [
-      Card(
-          // clipBehavior is necessary because, without it, the InkWell's animation
-          // will extend beyond the rounded edges of the [Card] (see https://github.com/flutter/flutter/issues/109776)
-          clipBehavior: Clip.hardEdge,
-          child: InkWell(
-              splashColor:
-              const Color.fromARGB(255, 199, 214, 226).withAlpha(30),
-              onTap: () {
-                // TODO: device pairing functionality
-              },
-              child: Column(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: width * 0.1, vertical: height * .09),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('VT-Patch-0'),
-                        Text('XX:XX:XX:XX:XX:XX'),
-                      ],
-                    ),
-                  )
-                ],
-              ))),
-    ];
-    return Column(children: cards);
+    // Handle the current state of the devices list.
+    return FutureBuilder(
+        future: devices,
+        builder:
+            (BuildContext c, AsyncSnapshot<List<BluetoothDevice>> snapshot) {
+          if (snapshot.data != null) {
+            List<Widget> cards = [];
+            // Create a list of cards that reflects the current state of our scan.
+            for (int i = 0; i < snapshot.data!.length; i++) {
+              cards.add(deviceCard(snapshot.data![i].platformName,
+                  snapshot.data![i].remoteId.toString(), context));
+            }
+            return Column(children: cards);
+          } else if (snapshot.hasError) {
+            return Text(
+                'An Error has occured while attempting to search for bluetooth devices.\nError: ${snapshot.error}');
+          } else {
+            return Text('No devices found.');
+          }
+        });
   }
+}
+
+/// Returns a Card representing a discovered vitaltracer device.
+/// Uses the [titleText] and [subHeading] to build the card.
+Card deviceCard(String titleText, String subHeading, BuildContext context) {
+  final height = MediaQuery.of(context).size.height;
+  final width = MediaQuery.of(context).size.width;
+  return Card(
+      // clipBehavior is necessary because, without it, the InkWell's animation
+      // will extend beyond the rounded edges of the [Card] (see https://github.com/flutter/flutter/issues/109776)
+      clipBehavior: Clip.hardEdge,
+      child: InkWell(
+          splashColor: const Color.fromARGB(255, 199, 214, 226).withAlpha(30),
+          onTap: () {
+            // TODO: device pairing functionality
+          },
+          child: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(
+                    horizontal: width * 0.2, vertical: height * .03),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(titleText),
+                    Text(subHeading),
+                  ],
+                ),
+              )
+            ],
+          )));
 }
