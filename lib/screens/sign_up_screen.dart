@@ -3,6 +3,7 @@ import 'package:vitaltracer_app/screens/home_screen.dart';
 import 'components/custom_textfield.dart';
 import 'package:vitaltracer_app/widgets/sign_up_widget.dart';
 import 'user_data_config_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SignupScreen extends StatelessWidget {
   const SignupScreen({super.key});
@@ -54,11 +55,11 @@ class SignScreenContent extends StatelessWidget {
               ),
               CustomTextField(
                 hintText: 'Enter your Email',
-                obscureText: true,
                 controller: emailController,
               ),
               CustomTextField(
                 hintText: 'Create Password',
+                obscureText: true,
                 controller: passwordController,
               ),
               CustomTextField(
@@ -68,6 +69,19 @@ class SignScreenContent extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               signInSignUpButton(context, false, () {
+                var db = FirebaseFirestore.instance;
+
+                // Create a new user with a first and last name
+                final user = <String, dynamic>{
+                  "username": usernameController.text,
+                  "email": emailController.text,
+                  "password": passwordController.text,
+                };
+
+                // Add a new document with a generated ID
+                db.collection("users").add(user).then((DocumentReference doc) =>
+                    print('DocumentSnapshot added with ID: ${doc.id}'));
+
                 Navigator.push(
                     context,
                     MaterialPageRoute(
