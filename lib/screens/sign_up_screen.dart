@@ -4,6 +4,8 @@ import 'components/custom_textfield.dart';
 import 'package:vitaltracer_app/widgets/sign_up_widget.dart';
 import 'user_data_config_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'auth_service.dart';
 
 class SignupScreen extends StatelessWidget {
   const SignupScreen({super.key});
@@ -11,12 +13,13 @@ class SignupScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Sign Up'),
-        ),
-        body: const SafeArea(
-          child: SignScreenContent(),
-        ));
+      appBar: AppBar(
+        title: const Text('Sign Up'),
+      ),
+      body: const SafeArea(
+        child: SignScreenContent(),
+      ),
+    );
   }
 }
 
@@ -27,7 +30,10 @@ class SignScreenContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final TextEditingController emailController = TextEditingController();
     final TextEditingController passwordController = TextEditingController();
+    final TextEditingController confirmPasswordController =
+        TextEditingController();
     final TextEditingController usernameController = TextEditingController();
+
     return LayoutBuilder(builder: (context, constraints) {
       return SingleChildScrollView(
         child: Padding(
@@ -55,6 +61,7 @@ class SignScreenContent extends StatelessWidget {
               ),
               CustomTextField(
                 hintText: 'Enter your Email',
+                obscureText: false,
                 controller: emailController,
               ),
               CustomTextField(
@@ -65,27 +72,42 @@ class SignScreenContent extends StatelessWidget {
               CustomTextField(
                 hintText: 'Confirm Password',
                 obscureText: true,
-                controller: passwordController,
+                controller: confirmPasswordController,
               ),
-              const SizedBox(height: 20),
-              signInSignUpButton(context, false, () {
-                var db = FirebaseFirestore.instance;
+              signInSignUpButton(context, false, () async {
+                if (passwordController.text == confirmPasswordController.text) {
+                  User? user = await AuthService().registerWithEmailAndPassword(
+                      emailController.text, passwordController.text);
+                  if (user != null) {
+                    // User successfully registered with Firebase Authentication
+                    // Now store additional user data in Firestore
+                    var db = FirebaseFirestore.instance;
 
-                // Create a new user with a first and last name
-                final user = <String, dynamic>{
-                  "username": usernameController.text,
-                  "email": emailController.text,
-                  "password": passwordController.text,
-                };
+                    final userData = <String, dynamic>{
+                      "username": usernameController.text,
+                      "email": emailController.text,
+                      // Don't store the password in Firestore for security reasons
+                    };
 
-                // Add a new document with a generated ID
-                db.collection("users").add(user).then((DocumentReference doc) =>
-                    print('DocumentSnapshot added with ID: ${doc.id}'));
+                    // Add a new document with the user's UID as the document ID
+                    await db.collection("users").doc(user.uid).set(userData);
 
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const UserDataConfigScreen()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const UserDataConfigScreen(),
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Registration failed')),
+                    );
+                  }
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Passwords do not match')),
+                  );
+                }
               })
             ],
           ),
