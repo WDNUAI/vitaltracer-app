@@ -14,7 +14,13 @@ dependencies:
   cupertino_icons: ^1.0.6
   settings_ui: ^2.0.2
   provider: ^6.0.0
+<<<<<<< HEAD
   flutter_screenutil: ^5.0.0
+=======
+  csv: ^6.0.0
+  fl_chart: ^0.35.0
+  syncfusion_flutter_charts: ^26.1.40
+>>>>>>> 6ef6174 (Added Seriel controller to display data in real time, added plot to show graph after collecting all data in session)
 
 
   
@@ -22,6 +28,11 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+<<<<<<< HEAD
+=======
+ 
+ 
+>>>>>>> 6ef6174 (Added Seriel controller to display data in real time, added plot to show graph after collecting all data in session)
 
 flutter:
   uses-material-design: true
