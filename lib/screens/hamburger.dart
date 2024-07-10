@@ -6,14 +6,17 @@ import 'home_screen.dart';
 import 'bluetooth-connections-screen.dart';
 import 'view_detailed_datatype.dart';
 import 'test_view_graph.dart';
+import 'auth_service.dart';
+import 'sign_in_screen.dart';
 
 class HamburgerMenu extends StatelessWidget {
   final VoidCallback onPressed;
+  final AuthService _auth;
 
 //Forced me to use a value that is not null not sure consequences of VoidCallback are - was added using quick fix btn
 
 //Below Code creates clickable icon, position of icon is determined in the class where it is called
-  const HamburgerMenu({required this.onPressed});
+  HamburgerMenu({required this.onPressed}) : _auth = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +85,6 @@ class HamburgerMenu extends StatelessWidget {
                       builder: (context) => const ViewDetailedDatatype()),
                 );
               }),
-
           ListTile(
               title: const Text('Record with Vital Tracer'),
               onTap: () {
@@ -93,6 +95,17 @@ class HamburgerMenu extends StatelessWidget {
                       builder: (context) => const TestViewGraph()),
                 );
               }),
+          ListTile(
+            title: const Text('Sign Out'),
+            onTap: () async {
+              await _auth.signOut();
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SignScreen()),
+              );
+            },
+          ),
           // add more buttons at a later point here
         ],
       ),
