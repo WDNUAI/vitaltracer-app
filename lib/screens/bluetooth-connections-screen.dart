@@ -1,8 +1,5 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'hamburger.dart';
-import 'dart:developer';
 import '../services/bluetooth.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
@@ -19,6 +16,7 @@ class _BluetoothConnectionsScreenState
   Future<List<BluetoothDevice>>? devices;
   int previousDeviceCount = 0;
 
+  @override
   Widget build(BuildContext context) {
     return ScreenContent(context);
   }
@@ -41,7 +39,7 @@ class _BluetoothConnectionsScreenState
         //When Icon is pressed, call Builddrawer() within hamburger class
       ).buildDrawer(context),
       body: Container(
-          margin: EdgeInsets.only(bottom: 20, top: 20),
+          margin: const EdgeInsets.only(bottom: 20, top: 20),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -49,12 +47,13 @@ class _BluetoothConnectionsScreenState
               Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text("Select a VT device:", style: TextStyle(fontSize: 30)),
-                  Spacer(),
+                  const Text("Select a VT device:",
+                      style: TextStyle(fontSize: 30)),
+                  const Spacer(),
                   SingleChildScrollView(
                     child: getDevices(context),
                   ),
-                  Spacer(),
+                  const Spacer(),
                   // 'Search' Button
                   ElevatedButton(
                     onPressed: () {
@@ -62,9 +61,8 @@ class _BluetoothConnectionsScreenState
                         devices = searchBle(this);
                       });
                     },
-                    child: Padding(
-                        padding: EdgeInsets.all(20.0),
-                        child: Text("Search")),
+                    child: const Padding(
+                        padding: EdgeInsets.all(20.0), child: Text("Search")),
                   ),
                 ],
               )
@@ -93,7 +91,7 @@ class _BluetoothConnectionsScreenState
             return Text(
                 'An Error has occured while attempting to search for bluetooth devices.\nError: ${snapshot.error}');
           } else {
-            return Text('No devices found.');
+            return const Text('No devices found.');
           }
         });
   }

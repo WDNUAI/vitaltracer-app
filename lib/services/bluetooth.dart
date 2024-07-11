@@ -22,7 +22,7 @@ Future<List<BluetoothDevice>> searchBle(State<BluetoothConnectionsScreen> screen
     // For now, we don't provide any search criteria and
     // just search for any nearby BLE devices to test.
     await FlutterBluePlus.startScan(
-        timeout: Duration(seconds: 15));
+        timeout: const Duration(seconds: 15));
     // withNames:["TBD_NAME_OF_VT"], Eventually our search will be limited to VT devices.
   }
   // Listen to our scan results
@@ -31,7 +31,7 @@ Future<List<BluetoothDevice>> searchBle(State<BluetoothConnectionsScreen> screen
         if (!devices.contains(result.device)) {
           // Make sure our device is not null and for now ignore any devices
           // without a proper platform name.
-          if (result.device.platformName != null && result.device.platformName.length > 1) {
+          if (result.device.platformName.length > 1) {
             devices.add(result.device);
             // Call setState every time we add a new device to the list.
             screen.setState(() {});

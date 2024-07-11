@@ -30,7 +30,7 @@ class SignScreenContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final TextEditingController emailController = TextEditingController();
     final TextEditingController passwordController = TextEditingController();
-    final _auth = AuthService();
+    final auth = AuthService();
 
     return LayoutBuilder(builder: (context, constraints) {
       return SingleChildScrollView(
