@@ -5,6 +5,7 @@ import 'settings.dart';
 import 'home_screen.dart';
 import 'bluetooth-connections-screen.dart';
 import 'view_detailed_datatype.dart';
+import 'test_view_graph.dart';
 import 'auth_service.dart';
 import 'sign_in_screen.dart';
 
@@ -82,6 +83,16 @@ class HamburgerMenu extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                       builder: (context) => const ViewDetailedDatatype()),
+                );
+              }),
+          ListTile(
+              title: const Text('Record with Vital Tracer'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const TestViewGraph()),
                 );
               }),
           ListTile(
