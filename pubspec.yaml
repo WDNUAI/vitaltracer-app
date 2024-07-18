@@ -1,19 +1,35 @@
 name: vitaltracer_app
 description: "A new Flutter project."
-publish_to: 'none'
-version: 0.1.0
+publish_to: "none"
+version: 1.0.0+1
 
 environment:
-  sdk: '>=3.4.1 <4.0.0'
+  sdk: ">=3.4.0 <4.0.0"
 
 dependencies:
+  flutter_blue_plus: ^1.32.0
+  flutter_bluetooth_serial: ^0.4.0
   flutter:
     sdk: flutter
+  cupertino_icons: ^1.0.6
+  settings_ui: ^2.0.2
+  provider: ^6.0.0
+  flutter_screenutil: ^5.0.0
+  csv: ^6.0.0
+  fl_chart: ^0.35.0
+  syncfusion_flutter_charts: ^26.1.40
+  firebase_core: ^3.1.0
+  firebase_auth: ^5.1.0
+  cloud_firestore: ^5.0.1
+  google_sign_in: ^6.2.1 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.0
+  flutter_lints: ^4.0.0
 
 flutter:
   uses-material-design: true
+  assets:
+    - lib/Data/
+    - lib/images/
