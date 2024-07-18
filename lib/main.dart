@@ -3,11 +3,21 @@ import 'package:provider/provider.dart';
 import 'package:vitaltracer_app/screens/sign_in_screen.dart';
 import 'models/user_info.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() => runApp(ChangeNotifierProvider(
-      create: (context) => UserInfoModel(),
-      child: const MyApp(),
-    ));
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  runApp(ChangeNotifierProvider(
+    create: (context) => UserInfoModel(),
+    child: const MyApp(),
+  ));
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

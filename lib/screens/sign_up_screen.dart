@@ -3,6 +3,9 @@ import 'package:vitaltracer_app/screens/home_screen.dart';
 import 'components/custom_textfield.dart';
 import 'package:vitaltracer_app/widgets/sign_up_widget.dart';
 import 'user_data_config_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'auth_service.dart';
 
 class SignupScreen extends StatelessWidget {
   const SignupScreen({super.key});
@@ -10,12 +13,13 @@ class SignupScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Sign Up'),
-        ),
-        body: const SafeArea(
-          child: SignScreenContent(),
-        ));
+      appBar: AppBar(
+        title: const Text('Sign Up'),
+      ),
+      body: const SafeArea(
+        child: SignScreenContent(),
+      ),
+    );
   }
 }
 
@@ -26,7 +30,10 @@ class SignScreenContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final TextEditingController emailController = TextEditingController();
     final TextEditingController passwordController = TextEditingController();
+    final TextEditingController confirmPasswordController =
+        TextEditingController();
     final TextEditingController usernameController = TextEditingController();
+
     return LayoutBuilder(builder: (context, constraints) {
       return SingleChildScrollView(
         child: Padding(
@@ -54,24 +61,53 @@ class SignScreenContent extends StatelessWidget {
               ),
               CustomTextField(
                 hintText: 'Enter your Email',
-                obscureText: true,
+                obscureText: false,
                 controller: emailController,
               ),
               CustomTextField(
                 hintText: 'Create Password',
+                obscureText: true,
                 controller: passwordController,
               ),
               CustomTextField(
                 hintText: 'Confirm Password',
                 obscureText: true,
-                controller: passwordController,
+                controller: confirmPasswordController,
               ),
-              const SizedBox(height: 20),
-              signInSignUpButton(context, false, () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const UserDataConfigScreen()));
+              signInSignUpButton(context, false, () async {
+                if (passwordController.text == confirmPasswordController.text) {
+                  User? user = await AuthService().registerWithEmailAndPassword(
+                      emailController.text, passwordController.text);
+                  if (user != null) {
+                    // User successfully registered with Firebase Authentication
+                    // Now store additional user data in Firestore
+                    var db = FirebaseFirestore.instance;
+
+                    final userData = <String, dynamic>{
+                      "username": usernameController.text,
+                      "email": emailController.text,
+                      // Don't store the password in Firestore for security reasons
+                    };
+
+                    // Add a new document with the user's UID as the document ID
+                    await db.collection("users").doc(user.uid).set(userData);
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const UserDataConfigScreen(),
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Registration failed')),
+                    );
+                  }
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Passwords do not match')),
+                  );
+                }
               })
             ],
           ),
