@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:fl_chart/fl_chart.dart';
+import 'package:fl_chart/fl_chart.dart' as fl;
 import 'dart:async';
 import 'parseCsv.dart';
 
@@ -14,53 +14,112 @@ class TestViewGraph extends StatefulWidget {
 }
 
 class _TestViewGraphState extends State<TestViewGraph> {
-  // Define chart data and controller and set boolean for recording session
-  late List<LiveData> chartData;
-  late ChartSeriesController _chartSeriesController;
+  //define blank data sets to be used as a cache
+  List<LiveData> irChartData = [];
+  List<LiveData> ecgChartData = [];
+  //define controller for each real time chart
+  ChartSeriesController? _irChartSeriesController;
+  ChartSeriesController? _ecgChartSeriesController;
   bool isRecording = false;
+  Timer? _timer;
+  int maxDataPoints =
+      1000; // Modify this value to determine how many points can appear on the graph at once (1000 points x 5ms per point = 5 seconds of dat)
+  int batchSize =
+      30; // Amount of data to be displayed per update (5ms x 50 points = 250ms of data or 1/4 second)
+  double xScaleFactor = 1000.0; // Scale factor to convert ms to seconds
+  List<LiveData> _irStoredData = [];
+  List<LiveData> _ecgStoredData = [];
+  int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    chartData = []; // Initialize chart data list
   }
 
   // Initialize data retrieval and start data updates
   void _initializeData() async {
-    List<FlSpot> initialSpots = await ParseCSV.getSpotsFromCSV();
-    setState(() {
-      // Set initial chart data from CSV spots
-      chartData = initialSpots
-          .map((spot) => LiveData(spot.x.toInt(), spot.y.toInt()))
-          .toList();
-    });
+    List<fl.FlSpot> irSpots = await ParseCSV.getSpotsFromCSV(2);
+    List<fl.FlSpot> ecgSpots = await ParseCSV.getSpotsFromCSV(1);
+    //store spots some we only need to parse one time - temp
+    _irStoredData = irSpots
+        .map((spot) => LiveData(spot.x / xScaleFactor, spot.y.toInt(), 0))
+        .toList();
+    _ecgStoredData = ecgSpots
+        .map((spot) => LiveData(spot.x / xScaleFactor, 0, spot.y.toInt()))
+        .toList();
+    _currentIndex = 0; // Reset index to start from the beginning
     _startDataUpdate(); // Start data updates
   }
 
   // Method for starting periodic data updates - first 150 rows have bad data - discuss with Luca on if they want to remove calibration view
   void _startDataUpdate() {
-    const int updateIntervalSeconds = 1;
-    const int dataPointsToRemove = 150;
+    const int updateIntervalMs = 300; // timer for when we update state again
+    _timer =
+        Timer.periodic(const Duration(milliseconds: updateIntervalMs), (timer) {
+      if (_currentIndex < _irStoredData.length &&
+          _currentIndex < _ecgStoredData.length) {
+        //set state to new data points if we have not parsed entire list
+        setState(() {
+          // Calculate the number of points to add in batches, allows the application to run smoothly
+          int remainingPoints = _irStoredData.length - _currentIndex;
+          int pointsToAdd =
+              remainingPoints < batchSize ? remainingPoints : batchSize;
 
-    // Use Timer to trigger data updates at set intervals
-    Timer.periodic(const Duration(milliseconds: updateIntervalSeconds),
-        (timer) async {
-      List<FlSpot> newSpots = await ParseCSV.getSpotsFromCSV();
-      setState(() {
-        chartData
-            .add(LiveData(newSpots.last.x.toInt(), newSpots.last.y.toInt()));
-        if (chartData.length > dataPointsToRemove) {
-          chartData.removeRange(0, chartData.length - dataPointsToRemove);
+          // Add new points to irChartData and remove oldest points if exceeds maxDataPoints
+          irChartData.addAll(_irStoredData.getRange(
+              _currentIndex, _currentIndex + pointsToAdd));
+          if (irChartData.length > maxDataPoints) {
+            irChartData.removeRange(0, irChartData.length - maxDataPoints);
+          }
+
+          // Add new points to ecgChartData and remove oldest points if exceeds maxDataPoints
+          ecgChartData.addAll(_ecgStoredData.getRange(
+              _currentIndex, _currentIndex + pointsToAdd));
+          if (ecgChartData.length > maxDataPoints) {
+            ecgChartData.removeRange(0, ecgChartData.length - maxDataPoints);
+          }
+
+          // Update the IR chart
+          if (_irChartSeriesController != null) {
+            _irChartSeriesController!.updateDataSource(
+              //add points to graph
+              addedDataIndexes: List.generate(
+                  pointsToAdd, (i) => irChartData.length - pointsToAdd + i),
+              //remove indexs if length past chart length
+              removedDataIndexes: irChartData.length > maxDataPoints
+                  ? List.generate(irChartData.length - maxDataPoints, (i) => i)
+                  : [],
+            );
+          }
+
+          // Update the ECG chart
+          if (_ecgChartSeriesController != null) {
+            _ecgChartSeriesController!.updateDataSource(
+              addedDataIndexes: List.generate(
+                  pointsToAdd, (i) => ecgChartData.length - pointsToAdd + i),
+              removedDataIndexes: ecgChartData.length > maxDataPoints
+                  ? List.generate(ecgChartData.length - maxDataPoints, (i) => i)
+                  : [],
+            );
+          }
+
+          // Update the current index
+          _currentIndex += pointsToAdd;
+        });
+
+        // Stop the timer if we've reached the end of the stored data
+        if (_currentIndex >= _irStoredData.length ||
+            _currentIndex >= _ecgStoredData.length) {
+          timer.cancel();
         }
-      });
-      // Update chart data source
-      if (_chartSeriesController != null) {
-        _chartSeriesController.updateDataSource(
-          addedDataIndex: chartData.length - 1,
-          removedDataIndex: chartData.length - 1 - dataPointsToRemove,
-        );
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -76,33 +135,73 @@ class _TestViewGraphState extends State<TestViewGraph> {
             // Live stream section for recordings
             Column(
               children: [
-                Text(
+                const Text(
                   'Live Recording of Data',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
+                //Container for IR Count
                 Container(
                   height: 300,
                   child: SfCartesianChart(
-                    primaryXAxis: NumericAxis(
+                    //Adjust X Axis properties
+                    primaryXAxis: const NumericAxis(
                       majorGridLines: MajorGridLines(width: 1),
                       edgeLabelPlacement: EdgeLabelPlacement.shift,
-                      interval: 20,
+                      interval: 1, // Adjusted interval for better readability
+                      title: AxisTitle(text: 'Time (s)'),
                     ),
-                    primaryYAxis: NumericAxis(
+                    //Adjust Y Axis properties
+                    primaryYAxis: const NumericAxis(
                       axisLine: AxisLine(width: 1),
                       majorTickLines: MajorTickLines(size: 10),
+                      title: AxisTitle(text: 'IR Count'),
                     ),
-                    series: <LineSeries<LiveData, int>>[
-                      LineSeries<LiveData, int>(
-                        dataSource: chartData,
+                    series: <LineSeries<LiveData, double>>[
+                      LineSeries<LiveData, double>(
+                        dataSource: irChartData,
                         xValueMapper: (LiveData data, _) => data.time,
-                        yValueMapper: (LiveData data, _) => data.irCount,
+                        yValueMapper: (LiveData data, _) =>
+                            data.irCount.toDouble(),
                         onRendererCreated: (ChartSeriesController controller) {
-                          _chartSeriesController = controller;
+                          _irChartSeriesController = controller;
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                //Container for displaying ECG graph. pass in live data to series to be graphed
+                Container(
+                  //determine heigh or max Y value upon init
+                  height: 300,
+                  //Adjust X axis properties
+                  child: SfCartesianChart(
+                    primaryXAxis: const NumericAxis(
+                      majorGridLines: MajorGridLines(width: 1),
+                      edgeLabelPlacement: EdgeLabelPlacement.shift,
+                      interval: 1, // determines size of spacing on x axis
+                      title: AxisTitle(text: 'Time (s)'),
+                    ),
+                    //Adjust Y  Axis properties
+                    primaryYAxis: const NumericAxis(
+                      axisLine: AxisLine(width: 1),
+                      majorTickLines: MajorTickLines(size: 10),
+                      title: AxisTitle(text: 'ECG'),
+                      //adjust max and min values in chart
+                      minimum: 50,
+                      maximum: 250,
+                    ),
+                    series: <LineSeries<LiveData, double>>[
+                      LineSeries<LiveData, double>(
+                        dataSource: ecgChartData,
+                        xValueMapper: (LiveData data, _) => data.time,
+                        yValueMapper: (LiveData data, _) => data.ecg.toDouble(),
+                        onRendererCreated: (ChartSeriesController controller) {
+                          _ecgChartSeriesController = controller;
                         },
                       ),
                     ],
@@ -112,61 +211,17 @@ class _TestViewGraphState extends State<TestViewGraph> {
                 ElevatedButton(
                   onPressed: () {
                     setState(() {
-                      //invert state of recording on press
+                      // Toggle recording state
                       isRecording = !isRecording;
                       if (isRecording) {
-                        //init data for graphing
                         _initializeData(); // Start recording data
+                      } else {
+                        _timer?.cancel(); // Stop recording data
                       }
                     });
                   },
-                  //Recording Button for staring live record session to be saved and later extractable
                   child:
                       Text(isRecording ? 'Stop Recording' : 'Start Recording'),
-                ),
-              ],
-            ),
-
-            SizedBox(height: 32),
-
-            // Existing graph section for historical data
-            Column(
-              children: [
-                Text(
-                  'ECG Data Session 2024-06-04',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 16),
-                Container(
-                  height: 300,
-                  child: FutureBuilder(
-                    future: ParseCSV.getSpotsFromCSV(),
-                    builder: (context, snapshot) {
-                      // if (snapshot.connectionState == ConnectionState.waiting) {
-                      // return CircularProgressIndicator();
-                      if (snapshot.hasError) {
-                        return Text(
-                            'Error: ${snapshot.error}'); // Show error message if data fetching fails
-                      } else if (snapshot.hasData) {
-                        return LineChart(
-                          LineChartData(
-                            lineBarsData: [
-                              LineChartBarData(
-                                spots: snapshot
-                                    .data!, // Display historical data using FL Chart
-                              ),
-                            ],
-                          ),
-                        );
-                      } else {
-                        return Text(
-                            'No data'); // Show message if no data available
-                      }
-                    },
-                  ),
                 ),
               ],
             ),
@@ -177,10 +232,11 @@ class _TestViewGraphState extends State<TestViewGraph> {
   }
 }
 
-// Modelling time and ir count, can add remaining columns as unique color
+// Modelling time and ir count/ecg data
 class LiveData {
-  final int time;
+  final double time;
   final int irCount;
+  final int ecg;
 
-  LiveData(this.time, this.irCount);
+  LiveData(this.time, this.irCount, this.ecg);
 }
