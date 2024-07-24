@@ -25,7 +25,7 @@ class _TestViewGraphState extends State<TestViewGraph> {
   int maxDataPoints =
       1000; // Modify this value to determine how many points can appear on the graph at once (1000 points x 5ms per point = 5 seconds of dat)
   int batchSize =
-      50; // Amount of data to be displayed per update (5ms x 50 points = 250ms of data or 1/4 second)
+      20; // Amount of data to be displayed per update (5ms x 50 points = 250ms of data or 1/4 second)
   double xScaleFactor = 1000.0; // Scale factor to convert ms to seconds
   List<LiveData> _irStoredData = [];
   List<LiveData> _ecgStoredData = [];
@@ -53,7 +53,7 @@ class _TestViewGraphState extends State<TestViewGraph> {
 
   // Method for starting periodic data updates - first 150 rows have bad data - discuss with Luca on if they want to remove calibration view
   void _startDataUpdate() {
-    const int updateIntervalMs = 200; // timer for when we update state again
+    const int updateIntervalMs = 100; // timer for when we update state again
     _timer =
         Timer.periodic(const Duration(milliseconds: updateIntervalMs), (timer) {
       if (_currentIndex < _irStoredData.length &&
