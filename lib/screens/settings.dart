@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:settings_ui/settings_ui.dart';
+import 'package:provider/provider.dart';
+import 'package:vitaltracer_app/models/theme_notifier.dart';
 import 'detailed_view_screen.dart';
 import 'bluetooth-connections-screen.dart';
 
-//documentation on settings widgets here: https://pub.dev/documentation/settings_ui/latest/
 class Settings extends StatelessWidget {
   const Settings({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Get the themeNotifier from Provider
+    final themeNotifier = Provider.of<ThemeNotifier>(context);
+
     return Scaffold(
       appBar: AppBar(
         //give title to list of below apps
@@ -71,9 +75,10 @@ class Settings extends StatelessWidget {
               ),
               //Dark Mode Toggle
               SettingsTile.switchTile(
-                onToggle: (bool value) {},
-                initialValue:
-                    false, //dark mode is initially off when booting app
+                onToggle: (bool value) {
+                  themeNotifier.toggleTheme(value);
+                },
+                initialValue: themeNotifier.isDarkMode, // Get initial value from themeNotifier
                 leading: Icon(Icons.dark_mode),
                 title: Text('Dark Mode'),
               ),

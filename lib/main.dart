@@ -5,18 +5,26 @@ import 'models/user_info.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'models/theme_notifier.dart'; // Import the ThemeNotifier
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initialize Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  runApp(ChangeNotifierProvider(
-    create: (context) => UserInfoModel(),
-    child: const MyApp(),
-  ));
+  // Run the app with ChangeNotifierProvider for UserInfoModel and ThemeNotifier
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => UserInfoModel()),
+        ChangeNotifierProvider(create: (context) => ThemeNotifier()), // Add ThemeNotifier
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -24,14 +32,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get the themeNotifier from Provider
+    final themeNotifier = Provider.of<ThemeNotifier>(context);
+
     return ScreenUtilInit(
       designSize: const Size(360, 690),
       builder: (context, child) {
         return MaterialApp(
           title: 'Health Monitor',
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-          ),
+          //Use theme notifier , set light theme to default
+          theme: themeNotifier.isDarkMode ? darkTheme : lightTheme, 
           home: const SignScreen(),
         );
       },
