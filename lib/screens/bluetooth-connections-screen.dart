@@ -26,7 +26,7 @@ class _BluetoothConnectionsScreenState
   Scaffold ScreenContent(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Vital Tracer Home'),
+        title: const Text('Connections'),
         //Create Hamburger Menu
         leading: Builder(
           builder: (context) => HamburgerMenu(
