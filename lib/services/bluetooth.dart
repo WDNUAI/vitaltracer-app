@@ -2,7 +2,10 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart' as blc;
+import 'package:permission_handler/permission_handler.dart';
 import '../screens/bluetooth-connections-screen.dart';
+
 
 /// Searches for nearby BLE bluetooth devices.
 /// Uses State<BluetoothConnectionsScreen> [screen] to tell the page to update
@@ -23,7 +26,8 @@ Future<List<BluetoothDevice>> searchBle(State<BluetoothConnectionsScreen> screen
     // just search for any nearby BLE devices to test.
     await FlutterBluePlus.startScan(
         timeout: Duration(seconds: 15));
-    // withNames:["TBD_NAME_OF_VT"], Eventually our search will be limited to VT devices.
+    // uncomment: withNames:["TBD_NAME_OF_VT"]
+    // Eventually our search will be limited to VT devices.
   }
   // Listen to our scan results
     FlutterBluePlus.scanResults.listen((results) {
@@ -40,5 +44,21 @@ Future<List<BluetoothDevice>> searchBle(State<BluetoothConnectionsScreen> screen
       }
     });
 
+  return devices;
+}
+
+/// Searches for nearby bluetooth classic devices.
+/// Uses State<BluetoothConnectionsScreen> [screen] to tell the page to update
+/// it's screen every time we find a new device while scanning.
+Future<List<blc.BluetoothDevice>> searchBlc(State<BluetoothConnectionsScreen> screen) async {
+  List<blc.BluetoothDevice> devices = [];
+  await Permission.locationWhenInUse.request();
+  if (await Permission.locationWhenInUse.isDenied){
+    return Future<List<blc.BluetoothDevice>>.error(Exception("Bluetooth not supported"));
+  }
+  blc.FlutterBluetoothSerial.instance.startDiscovery().listen((r) {
+      devices.add(r.device);
+      screen.setState(() {});
+  });
   return devices;
 }
