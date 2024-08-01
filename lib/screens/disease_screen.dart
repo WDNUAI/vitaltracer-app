@@ -16,8 +16,6 @@ class _DiseaseScreenState extends State<DiseaseScreen> {
   final double _topPadding = 20;
   final double _bottomPadding = 20;
 
-  int _gender = 0;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,201 +24,197 @@ class _DiseaseScreenState extends State<DiseaseScreen> {
         child: SafeArea(
           child: Padding(
             padding: EdgeInsets.fromLTRB(20, _topPadding, 20, _bottomPadding),
-            child: SingleChildScrollView(
-              child: SizedBox(
-                height: MediaQuery.sizeOf(context).height -
-                    MediaQuery.paddingOf(context).vertical -
-                    _topPadding -
-                    _bottomPadding,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const H1(text: "Disease"),
-                    const SizedBox(height: 10),
-                    const H2(text: "Which condition applies to you?"),
-                    const SizedBox(height: 20),
-                    FormField(
-                      builder: (state) {
-                        return Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Radio(
-                                  value: 1,
-                                  groupValue: _gender,
-                                  onChanged: (value) {
-                                    state.didChange(value);
-                                    setState(() {
-                                      _gender = value!;
-                                    });
-                                  },
-                                  visualDensity: const VisualDensity(
-                                    horizontal: VisualDensity.minimumDensity,
-                                    vertical: VisualDensity.minimumDensity,
-                                  ),
-                                ),
-                                const Text("Male"),
-                                Radio(
-                                  value: 2,
-                                  groupValue: _gender,
-                                  onChanged: (value) {
-                                    state.didChange(value);
-                                    setState(() {
-                                      _gender = value!;
-                                    });
-                                  },
-                                  visualDensity: const VisualDensity(
-                                    horizontal: VisualDensity.minimumDensity,
-                                    vertical: VisualDensity.minimumDensity,
-                                  ),
-                                ),
-                                const Text("Female"),
-                                Radio(
-                                  value: 3,
-                                  groupValue: _gender,
-                                  onChanged: (value) {
-                                    state.didChange(value);
-                                    setState(() {
-                                      _gender = value!;
-                                    });
-                                  },
-                                  visualDensity: const VisualDensity(
-                                    horizontal: VisualDensity.minimumDensity,
-                                    vertical: VisualDensity.minimumDensity,
-                                  ),
-                                ),
-                                const Text("Prefer not to answer"),
-                              ],
-                            ),
-                            state.hasError
-                                ? Text(
-                                    state.errorText!,
-                                    style: const TextStyle(
-                                      color: Color.fromARGB(
-                                        255,
-                                        184,
-                                        54,
-                                        44,
-                                      ),
-                                    ),
-                                  )
-                                : Container(),
-                          ],
-                        );
-                      },
-                      validator: (int? value) {
-                        if (value == null) {
-                          return "Please specify your gender";
-                        }
-                        return null;
-                      },
-                    ),
-                    Expanded(
-                      child: Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              height: 18,
-                              width: 18,
-                              margin: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .primaryContainer,
-                                border: Border.all(
-                                    color:
-                                        Theme.of(context).colorScheme.primary),
-                              ),
-                            ),
-                            Container(
-                              height: 18,
-                              width: 18,
-                              margin: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .primaryContainer,
-                                border: Border.all(
-                                    color:
-                                        Theme.of(context).colorScheme.primary),
-                              ),
-                            ),
-                            Container(
-                              height: 18,
-                              width: 18,
-                              margin: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                            Container(
-                              height: 18,
-                              width: 18,
-                              margin: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                    color:
-                                        Theme.of(context).colorScheme.primary),
-                              ),
-                            ),
-                          ],
-                        ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const H1(text: "Disease"),
+                const SizedBox(height: 10),
+                const H2(text: "Which condition applies to you?"),
+                const SizedBox(height: 10),
+                SizedBox(
+                  height: 500,
+                  child: ListView(
+                    children: [
+                      SwitchListTile(
+                        title: const Text("High Blood Pressure"),
+                        value: false,
+                        onChanged: (value) {},
                       ),
-                    ),
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          FilledButton(
-                            style: FilledButton.styleFrom(
-                              minimumSize: const Size(150, 40),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                            ),
-                            child: const Text("BACK"),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        const SkinColorScreen()),
-                              );
-                            },
-                          ),
-                          FilledButton(
-                            style: FilledButton.styleFrom(
-                              minimumSize: const Size(150, 40),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                            ),
-                            child: const Text("NEXT"),
-                            onPressed: () {
-                              if (_formKey.currentState!.validate()) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const FinalInfoScreen()),
-                                );
-                              }
-                            },
-                          ),
-                        ],
+                      SwitchListTile(
+                        title: const Text("Heart Disease"),
+                        value: false,
+                        onChanged: (value) {},
                       ),
-                    ),
-                  ],
+                      SwitchListTile(
+                        title: const Text("Asthma"),
+                        value: false,
+                        onChanged: (value) {},
+                      ),
+                      SwitchListTile(
+                        title: const Text("Stroke"),
+                        value: false,
+                        onChanged: (value) {},
+                      ),
+                      SwitchListTile(
+                        title: const Text("Cancer"),
+                        value: false,
+                        onChanged: (value) {},
+                      ),
+                      SwitchListTile(
+                        title: const Text("Diabetes"),
+                        value: false,
+                        onChanged: (value) {},
+                      ),
+                      SwitchListTile(
+                        title: const Text("Epilepsy"),
+                        value: false,
+                        onChanged: (value) {},
+                      ),
+                      SwitchListTile(
+                        title: const Text("High Cholesterol"),
+                        value: false,
+                        onChanged: (value) {},
+                      ),
+                      SwitchListTile(
+                        title: const Text("Liver Disease"),
+                        value: false,
+                        onChanged: (value) {},
+                      ),
+                      SwitchListTile(
+                        title: const Text("Thyroid Disease"),
+                        value: false,
+                        onChanged: (value) {},
+                      ),
+                      SwitchListTile(
+                        title: const Text("Kidney Diseases"),
+                        value: false,
+                        onChanged: (value) {},
+                      ),
+                      SwitchListTile(
+                        title: const Text("Bones/Joints/Muscle Diseases"),
+                        value: false,
+                        onChanged: (value) {},
+                      ),
+                      SwitchListTile(
+                        title: const Text("Allergies"),
+                        value: false,
+                        onChanged: (value) {},
+                      ),
+                      SwitchListTile(
+                        title: const Text("Anxiety"),
+                        value: false,
+                        onChanged: (value) {},
+                      ),
+                      SwitchListTile(
+                        title: const Text("Depression"),
+                        value: false,
+                        onChanged: (value) {},
+                      ),
+                      SwitchListTile(
+                        title: const Text("HIV/AIDS"),
+                        value: false,
+                        onChanged: (value) {},
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          height: 18,
+                          width: 18,
+                          margin: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color:
+                                Theme.of(context).colorScheme.primaryContainer,
+                            border: Border.all(
+                                color: Theme.of(context).colorScheme.primary),
+                          ),
+                        ),
+                        Container(
+                          height: 18,
+                          width: 18,
+                          margin: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color:
+                                Theme.of(context).colorScheme.primaryContainer,
+                            border: Border.all(
+                                color: Theme.of(context).colorScheme.primary),
+                          ),
+                        ),
+                        Container(
+                          height: 18,
+                          width: 18,
+                          margin: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                        Container(
+                          height: 18,
+                          width: 18,
+                          margin: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                                color: Theme.of(context).colorScheme.primary),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      FilledButton(
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size(150, 40),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        ),
+                        child: const Text("BACK"),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const SkinColorScreen()),
+                          );
+                        },
+                      ),
+                      FilledButton(
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size(150, 40),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        ),
+                        child: const Text("NEXT"),
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const FinalInfoScreen()),
+                            );
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ),
