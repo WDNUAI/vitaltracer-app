@@ -17,6 +17,7 @@ class BluetoothConnectionsScreenState
   Future<List<BluetoothDevice>>? bleDevices;
   Future<List<blc.BluetoothDevice>>?   blcDevices;
 
+  @override
   Widget build(BuildContext context) {
     return ScreenContent(context);
   }
@@ -39,7 +40,7 @@ class BluetoothConnectionsScreenState
         //When Icon is pressed, call Builddrawer() within hamburger class
       ).buildDrawer(context),
       body: Container(
-          margin: EdgeInsets.only(bottom: 20, top: 20),
+          margin: const EdgeInsets.only(bottom: 20, top: 20),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -47,12 +48,13 @@ class BluetoothConnectionsScreenState
               Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text("Select a VT device:", style: TextStyle(fontSize: 30)),
-                  Spacer(),
+                  const Text("Select a VT device:",
+                      style: TextStyle(fontSize: 30)),
+                  const Spacer(),
                   SingleChildScrollView(
                     child: getDevices(context),
                   ),
-                  Spacer(),
+                  const Spacer(),
                   // 'Search' Button
                   ElevatedButton(
                     onPressed: () {
@@ -62,9 +64,8 @@ class BluetoothConnectionsScreenState
                         blcDevices = searchBlc(this);
                       });
                     },
-                    child: Padding(
-                        padding: EdgeInsets.all(20.0),
-                        child: Text("Search")),
+                    child: const Padding(
+                        padding: EdgeInsets.all(20.0), child: Text("Search")),
                   ),
                 ],
               )

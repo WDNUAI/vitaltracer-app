@@ -35,7 +35,7 @@ Future<List<BluetoothDevice>> searchBle(State<BluetoothConnectionsScreen> screen
         if (!devices.contains(result.device)) {
           // Make sure our device is not null and for now ignore any devices
           // without a proper platform name.
-          if (result.device.platformName != null && result.device.platformName.length > 1) {
+          if (result.device.platformName.length > 1) {
             devices.add(result.device);
             // Call setState every time we add a new device to the list.
             screen.setState(() {});
