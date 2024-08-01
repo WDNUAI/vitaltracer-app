@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:fl_chart/fl_chart.dart' as fl;
 import 'dart:async';
@@ -17,9 +17,13 @@ class _TestViewGraphState extends State<TestViewGraph> {
   //define blank data sets to be used as a cache
   List<LiveData> irChartData = [];
   List<LiveData> ecgChartData = [];
+    List<LiveData> activityChartData = [];
+    List<LiveData> redCountChartData = [];
   //define controller for each real time chart
   ChartSeriesController? _irChartSeriesController;
   ChartSeriesController? _ecgChartSeriesController;
+  ChartSeriesController? _activityChartSeriesController;
+  ChartSeriesController? _RedCountSeriesController;
   bool isRecording = false;
   Timer? _timer;
   int maxDataPoints =
@@ -29,9 +33,13 @@ class _TestViewGraphState extends State<TestViewGraph> {
   double xScaleFactor = 1000.0; // Scale factor to convert ms to seconds
   List<LiveData> _irStoredData = [];
   List<LiveData> _ecgStoredData = [];
+  List<LiveData> _activityStoredData = [];
+    List<LiveData> _RedCountStoredData = [];
   int _currentIndex = 0;
   bool showIRGraph = true; // Toggle variable to control IR graph
   bool showECGGraph = true; // Toggle variable to control ECG graph
+  bool showActivityGraph = true; // Toggle variable to control Activity graph
+bool showRedCountGraph = true; // Toggle variable to control red countgraph
 
   @override
   void initState() {
@@ -42,13 +50,17 @@ class _TestViewGraphState extends State<TestViewGraph> {
   void _initializeData() async {
     List<fl.FlSpot> irSpots = await ParseCSV.getSpotsFromCSV(2);
     List<fl.FlSpot> ecgSpots = await ParseCSV.getSpotsFromCSV(1);
-    //store spots some we only need to parse one time - temp
-    _irStoredData = irSpots
-        .map((spot) => LiveData(spot.x / xScaleFactor, spot.y.toInt(), 0))
-        .toList();
-    _ecgStoredData = ecgSpots
-        .map((spot) => LiveData(spot.x / xScaleFactor, 0, spot.y.toInt()))
-        .toList();
+    List<fl.FlSpot> activitySpots = await ParseCSV.getSpotsFromCSV(4);
+    List<fl.FlSpot> redCountSpots = await ParseCSV.getSpotsFromCSV(3);
+
+    // store spots so we only need to parse one time - temp
+    _irStoredData = irSpots.map((spot) => LiveData(spot.x / xScaleFactor, spot.y.toInt(), 0, 0,0)).toList();
+    _ecgStoredData = ecgSpots.map((spot) => LiveData(spot.x / xScaleFactor, 0, spot.y.toInt(), 0,0)).toList();
+    _activityStoredData = activitySpots.map((spot) => LiveData(spot.x / xScaleFactor, 0, 0, spot.y.toInt(),0)).toList();
+    _RedCountStoredData = redCountSpots.map((spot) => LiveData(spot.x / xScaleFactor, 0, 0,0, spot.y.toInt())).toList();
+
+
+
     _currentIndex = 0; // Reset index to start from the beginning
     _startDataUpdate(); // Start data updates
   }
@@ -59,8 +71,10 @@ class _TestViewGraphState extends State<TestViewGraph> {
     _timer = Timer.periodic(Duration(milliseconds: updateIntervalMs), (timer) {
       if (!mounted) return; // Check if widget is still mounted
       if (_currentIndex < _irStoredData.length &&
-          _currentIndex < _ecgStoredData.length) {
-        //set state to new data points if we have not parsed entire list
+          _currentIndex < _ecgStoredData.length &&
+                    _currentIndex < _RedCountStoredData.length &&
+          _currentIndex < _activityStoredData.length) {
+        // Set state to new data points if we have not parsed entire list
         setState(() {
           // Calculate the number of points to add in batches, allows the application to run smoothly
           int remainingPoints = _irStoredData.length - _currentIndex;
@@ -107,13 +121,55 @@ class _TestViewGraphState extends State<TestViewGraph> {
             }
           }
 
+
+
+           // Add new points to redcount and remove oldest points if exceeds maxDataPoints
+          if (showRedCountGraph) {
+            redCountChartData.addAll(_RedCountStoredData.getRange(
+                _currentIndex, _currentIndex + pointsToAdd));
+            if (redCountChartData.length > maxDataPoints) {
+              redCountChartData.removeRange(0, redCountChartData.length - maxDataPoints);
+            }
+
+            // Update the red couint
+            if (_RedCountSeriesController != null) {
+              _RedCountSeriesController!.updateDataSource(
+                addedDataIndexes: List.generate(
+                    pointsToAdd, (i) => redCountChartData.length - pointsToAdd + i),
+                removedDataIndexes: redCountChartData.length > maxDataPoints
+                    ? List.generate(redCountChartData.length - maxDataPoints, (i) => i)
+                    : [],
+              );
+            }
+          }
+
+          // Add new points to activityChartData and remove oldest points if exceeds maxDataPoints
+          if (showActivityGraph) {
+            activityChartData.addAll(_activityStoredData.getRange(_currentIndex, _currentIndex + pointsToAdd));
+            if (activityChartData.length > maxDataPoints) {
+              activityChartData.removeRange(0, activityChartData.length - maxDataPoints);
+            }
+
+            // Update the Activity chart
+            if (_activityChartSeriesController != null) {
+              _activityChartSeriesController!.updateDataSource(
+                addedDataIndexes: List.generate(pointsToAdd, (i) => activityChartData.length - pointsToAdd + i),
+                removedDataIndexes: activityChartData.length > maxDataPoints
+                    ? List.generate(activityChartData.length - maxDataPoints, (i) => i)
+                    : [],
+              );
+            }
+          }
+
           // Update the current index
           _currentIndex += pointsToAdd;
         });
 
         // Stop the timer if we've reached the end of the stored data
         if (_currentIndex >= _irStoredData.length ||
-            _currentIndex >= _ecgStoredData.length) {
+            _currentIndex >= _ecgStoredData.length ||
+            _currentIndex >= _RedCountStoredData.length ||
+            _currentIndex >= _activityStoredData.length) {
           timer.cancel();
         }
       }
@@ -130,70 +186,13 @@ class _TestViewGraphState extends State<TestViewGraph> {
 //Widget to Pop out and give user option to toggle graphs and style
   @override
   Widget build(BuildContext context) {
+    // Calculate the height by getting number of grpahs visible, scale size if more charts visible. 
+    int visibleGraphs = (showIRGraph ? 1 : 0) + (showECGGraph ? 1 : 0) + (showRedCountGraph ? 1 : 0) + (showActivityGraph ? 1 : 0);
+    double chartHeight = 600 / (visibleGraphs > 0 ? visibleGraphs : 1);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Recording'),
-        actions: [
-          IconButton(
-            //Show settings cog - pop out menu when pressed
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-
-              //Usage of below function https://dev.to/theotherdevs/getting-to-know-flutter-advanced-use-of-modalbottomsheet-1hjf
-              showModalBottomSheet(
-                context: context,
-                builder: (BuildContext context) {
-                  return Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        //Show IR Graph in menu, start data update when pressed but willl be removed when we parse in real time
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text('Show IR Graph'),
-                            Switch(
-                              value: showIRGraph,
-                              onChanged: (value) {
-                                setState(() {
-                                  showIRGraph = value;
-                                  if (showIRGraph && isRecording) {
-                                    _irChartSeriesController = null;
-                                    _startDataUpdate();
-                                  }
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                        //ECG Toggle button 
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text('Show ECG Graph'),
-                            Switch(
-                              value: showECGGraph,
-                              onChanged: (value) {
-                                setState(() {
-                                  showECGGraph = value;
-                                  if (showECGGraph && isRecording) {
-                                    _ecgChartSeriesController = null;
-                                    _startDataUpdate();
-                                  }
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              );
-            },
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -202,120 +201,231 @@ class _TestViewGraphState extends State<TestViewGraph> {
             // Live stream section for recordings
             Column(
               children: [
-                const Text(
-                  'Live Recording of Data',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+            
+                const SizedBox(height: 16),
+                const SizedBox(height: 16),
+                // Checkbox to toggle IR graph
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Show IR Graph'),
+                    Checkbox(
+                      value: showIRGraph,
+                      onChanged: (value) {
+                        setState(() {
+                          showIRGraph = value ?? true;
+                          // Reset the controller when toggling the graph
+                          _irChartSeriesController = null;
+                        });
+                      },
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                const SizedBox(height: 16),
-                // Conditional rendering of IR Count graph
+
+                //Plot data if graph toggle is set to true
                 if (showIRGraph)
                   Container(
-                    height: showECGGraph ? 300 : 600,
+                    height: chartHeight,
                     child: SfCartesianChart(
-                      primaryXAxis: NumericAxis(
-                        majorGridLines: const MajorGridLines(width: 1),
-                        edgeLabelPlacement: EdgeLabelPlacement.shift,
-                        interval: 1, // Adjusted interval for whole numbers
-                        title: const AxisTitle(text: 'Time (s)'),
-                      ),
-                      primaryYAxis: const NumericAxis(
-                        axisLine: AxisLine(width: 1),
-                        majorTickLines: MajorTickLines(size: 10),
-                        title: AxisTitle(text: 'IR Count'),
-                      ),
                       series: <LineSeries<LiveData, double>>[
                         LineSeries<LiveData, double>(
-                          dataSource: irChartData,
-                          xValueMapper: (LiveData data, _) => data.time,
-                          yValueMapper: (LiveData data, _) =>
-                              data.irCount.toDouble(),
-                          onRendererCreated:
-                              (ChartSeriesController controller) {
+                          onRendererCreated: (ChartSeriesController controller) {
                             _irChartSeriesController = controller;
                           },
+                          dataSource: irChartData,
+                          xValueMapper: (LiveData data, _) => data.time,
+                          yValueMapper: (LiveData data, _) => data.irCount,
                         ),
                       ],
+                      primaryXAxis: NumericAxis(
+                        majorGridLines: const MajorGridLines(width: 0),
+                        edgeLabelPlacement: EdgeLabelPlacement.shift,
+                        interval: 1, // Set the interval to 1 for whole numbers
+                      ),
+                      primaryYAxis: NumericAxis(
+                        axisLine: const AxisLine(width: 0),
+                        majorTickLines: const MajorTickLines(size: 0),
+                      ),
                     ),
                   ),
                 const SizedBox(height: 16),
-                // Conditional rendering of ECG graph
+                // Checkbox to toggle ECG graph
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Show ECG Graph'),
+                    Checkbox(
+                      value: showECGGraph,
+                      onChanged: (value) {
+                        setState(() {
+                          showECGGraph = value ?? true;
+                          // Reset the controller when toggling the graph
+                          _ecgChartSeriesController = null;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+
+
+                //Plot data if graph toggle is set to true
                 if (showECGGraph)
                   Container(
-                    height: showIRGraph ? 300 : 600,
+                    height: chartHeight,
                     child: SfCartesianChart(
-                      primaryXAxis: NumericAxis(
-                        majorGridLines: const MajorGridLines(width: 1),
-                        edgeLabelPlacement: EdgeLabelPlacement.shift,
-                        interval: 1, // Adjusted interval for whole numbers
-                        title: const AxisTitle(text: 'Time (s)'),
-                      ),
-                      primaryYAxis: const NumericAxis(
-                        axisLine: AxisLine(width: 1),
-                        majorTickLines: MajorTickLines(size: 10),
-                        title: AxisTitle(text: 'ECG'),
-                      ),
                       series: <LineSeries<LiveData, double>>[
                         LineSeries<LiveData, double>(
-                          dataSource: ecgChartData,
-                          xValueMapper: (LiveData data, _) => data.time,
-                          yValueMapper: (LiveData data, _) =>
-                              data.ecg.toDouble(),
-                          onRendererCreated:
-                              (ChartSeriesController controller) {
+                          onRendererCreated: (ChartSeriesController controller) {
                             _ecgChartSeriesController = controller;
                           },
+                          dataSource: ecgChartData,
+                          xValueMapper: (LiveData data, _) => data.time,
+                          yValueMapper: (LiveData data, _) => data.ecg,
                         ),
                       ],
+                      primaryXAxis: NumericAxis(
+                        majorGridLines: const MajorGridLines(width: 0),
+                        edgeLabelPlacement: EdgeLabelPlacement.shift,
+                        interval: 1, // Set the interval to 1 for whole numbers
+                      ),
+                      primaryYAxis: NumericAxis(
+
+                        axisLine: const AxisLine(width: 0),
+                        majorTickLines: const MajorTickLines(size: 0),
+                        
+                      ),
                     ),
                   ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            // Buttons for starting and stopping the recording
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: isRecording
-                      ? null
-                      : () {
-                          setState(() {
-                            isRecording = true;
-                            _initializeData(); // Start the data initialization
-                          });
-                        },
-                  child: const Text('Start Recording'),
+
+
+                  //Checkbox logic
+                  Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Show Red Counts'),
+                    Checkbox(
+                      value: showRedCountGraph,
+                      onChanged: (value) {
+                        setState(() {
+                          showRedCountGraph = value ?? true;
+                          // reset the controller when toggling the grap
+                          _RedCountSeriesController = null;
+                        });
+                      },
+                    ),
+                  ],
                 ),
-                ElevatedButton(
-                  onPressed: isRecording
-                      ? () {
-                          setState(() {
-                            isRecording = false;
-                            _timer?.cancel();
-                            _timer = null;
-                          });
-                        }
-                      : null,
-                  child: const Text('Stop Recording'),
+
+                
+                //Plot data if graph toggle is set to true
+                  if (showRedCountGraph)   // Show red coount graph
+                  Container(
+                    height: chartHeight,
+                    child: SfCartesianChart(
+                      series: <LineSeries<LiveData, double>>[
+                        LineSeries<LiveData, double>(
+                          onRendererCreated: (ChartSeriesController controller) {
+                            _RedCountSeriesController = controller;
+                          },
+                          dataSource: redCountChartData,
+                          xValueMapper: (LiveData data, _) => data.time,
+                          yValueMapper: (LiveData data, _) => data.redCount,
+                        ),
+                      ],
+                      primaryXAxis: NumericAxis(
+                        majorGridLines: const MajorGridLines(width: 0),
+                        edgeLabelPlacement: EdgeLabelPlacement.shift,
+                        interval: 1, // set the interval to 1 for whole numbers
+                      ),
+                      primaryYAxis: NumericAxis(
+                        axisLine: const AxisLine(width: 0),
+                        majorTickLines: const MajorTickLines(size: 0),
+                      ),
+                    ),
+                  ),
+
+
+                  
+                const SizedBox(height: 16),
+                // Checkbox to toggle Activity graph
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Show Activity Graph'),
+                    Checkbox(
+                      value: showActivityGraph,
+                      onChanged: (value) {
+                        setState(() {
+                          showActivityGraph = value ?? true;
+                          // Reset the controller when toggling the graph
+                          _activityChartSeriesController = null;
+                        });
+                      },
+                    ),
+                  ],
                 ),
+
+                
+                //Plot data if graph toggle is set to true
+                if (showActivityGraph)
+                  Container(
+                    height: chartHeight,
+                    child: SfCartesianChart(
+                      series: <LineSeries<LiveData, double>>[
+                        LineSeries<LiveData, double>(
+                          onRendererCreated: (ChartSeriesController controller) {
+                            _activityChartSeriesController = controller;
+                          },
+                          dataSource: activityChartData,
+                          xValueMapper: (LiveData data, _) => data.time,
+                          yValueMapper: (LiveData data, _) => data.activity,
+                        ),
+                      ],
+                      primaryXAxis: NumericAxis(
+                        majorGridLines: const MajorGridLines(width: 0),
+                        edgeLabelPlacement: EdgeLabelPlacement.shift,
+                        interval: 1, // Set the interval to 1 for whole numbers
+                      ),
+                      primaryYAxis: NumericAxis(
+                        axisLine: const AxisLine(width: 0),
+                        majorTickLines: const MajorTickLines(size: 0),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ],
         ),
       ),
+      // FloatingActionButton for cool looking play btn
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setState(() {
+            if (isRecording) {
+              // Stop recording
+              _timer?.cancel();
+              isRecording = false;
+            } else {
+              // Start recording
+              _initializeData();
+              isRecording = true;
+            }
+          });
+        },
+        child: Icon(isRecording ? Icons.stop : Icons.play_arrow),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }
 
-// Modelling time and ir count/ecg data
+// Class for holding the data to be graphed - can add additional variables for display
 class LiveData {
   final double time;
   final int irCount;
   final int ecg;
+  final int activity;
+  final int redCount;
 
-  LiveData(this.time, this.irCount, this.ecg);
+  LiveData(this.time, this.irCount, this.ecg, this.activity, this.redCount);
 }
