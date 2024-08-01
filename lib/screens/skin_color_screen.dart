@@ -41,82 +41,130 @@ class _SkinColorScreenState extends State<SkinColorScreen> {
                         text:
                             "Please classify your skin color according to this scale."),
                     const SizedBox(height: 20),
-                    FormField(
-                      builder: (state) {
-                        return Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Radio(
-                                  value: 1,
-                                  groupValue: _gender,
-                                  onChanged: (value) {
-                                    state.didChange(value);
-                                    setState(() {
-                                      _gender = value!;
-                                    });
-                                  },
-                                  visualDensity: const VisualDensity(
-                                    horizontal: VisualDensity.minimumDensity,
-                                    vertical: VisualDensity.minimumDensity,
-                                  ),
-                                ),
-                                const Text("Male"),
-                                Radio(
-                                  value: 2,
-                                  groupValue: _gender,
-                                  onChanged: (value) {
-                                    state.didChange(value);
-                                    setState(() {
-                                      _gender = value!;
-                                    });
-                                  },
-                                  visualDensity: const VisualDensity(
-                                    horizontal: VisualDensity.minimumDensity,
-                                    vertical: VisualDensity.minimumDensity,
-                                  ),
-                                ),
-                                const Text("Female"),
-                                Radio(
-                                  value: 3,
-                                  groupValue: _gender,
-                                  onChanged: (value) {
-                                    state.didChange(value);
-                                    setState(() {
-                                      _gender = value!;
-                                    });
-                                  },
-                                  visualDensity: const VisualDensity(
-                                    horizontal: VisualDensity.minimumDensity,
-                                    vertical: VisualDensity.minimumDensity,
-                                  ),
-                                ),
-                                const Text("Prefer not to answer"),
-                              ],
+                    SizedBox(
+                      height: 450,
+                      child: ListView(
+                        children: [
+                          ListTile(
+                            leading: Radio(
+                              value: 1,
+                              groupValue: 1,
+                              onChanged: (value) {},
                             ),
-                            state.hasError
-                                ? Text(
-                                    state.errorText!,
-                                    style: const TextStyle(
-                                      color: Color.fromARGB(
-                                        255,
-                                        184,
-                                        54,
-                                        44,
-                                      ),
-                                    ),
-                                  )
-                                : Container(),
-                          ],
-                        );
-                      },
-                      validator: (int? value) {
-                        if (value == null) {
-                          return "Please specify your gender";
-                        }
-                        return null;
-                      },
+                            title: const Text("Light, Pale White"),
+                            subtitle: const Text("Always burns, never tans"),
+                            trailing: Container(
+                              height: 50,
+                              width: 50,
+                              margin: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Color.fromARGB(255, 255, 222, 199),
+                              ),
+                            ),
+                          ),
+                          const Divider(),
+                          ListTile(
+                            leading: Radio(
+                              value: 1,
+                              groupValue: 1,
+                              onChanged: (value) {},
+                            ),
+                            title: const Text("White, Fair"),
+                            subtitle: const Text(
+                                "Usually burns, tans with difficulty"),
+                            trailing: Container(
+                              height: 50,
+                              width: 50,
+                              margin: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Color.fromARGB(255, 234, 184, 146),
+                              ),
+                            ),
+                          ),
+                          const Divider(),
+                          ListTile(
+                            leading: Radio(
+                              value: 1,
+                              groupValue: 1,
+                              onChanged: (value) {},
+                            ),
+                            title: const Text("Medium White to Olive"),
+                            subtitle: const Text(
+                                "Sometimes mild burn, gradually tans to olive"),
+                            trailing: Container(
+                              height: 50,
+                              width: 50,
+                              margin: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Color.fromARGB(255, 204, 142, 105),
+                              ),
+                            ),
+                          ),
+                          const Divider(),
+                          ListTile(
+                            leading: Radio(
+                              value: 1,
+                              groupValue: 1,
+                              onChanged: (value) {},
+                            ),
+                            title: const Text("Olive tone"),
+                            subtitle: const Text(
+                                "Rarely burns, tans with ease to moderate brown"),
+                            trailing: Container(
+                              height: 50,
+                              width: 50,
+                              margin: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Color.fromARGB(255, 171, 116, 87),
+                              ),
+                            ),
+                          ),
+                          const Divider(),
+                          ListTile(
+                            leading: Radio(
+                              value: 1,
+                              groupValue: 1,
+                              onChanged: (value) {},
+                            ),
+                            title: const Text("Light Brown"),
+                            subtitle: const Text(
+                                "Very rarely burns, tans very easily"),
+                            trailing: Container(
+                              height: 50,
+                              width: 50,
+                              margin: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Color.fromARGB(255, 134, 59, 8),
+                              ),
+                            ),
+                          ),
+                          const Divider(),
+                          ListTile(
+                            leading: Radio(
+                              value: 1,
+                              groupValue: 1,
+                              onChanged: (value) {},
+                            ),
+                            title: const Text("Dark Brown"),
+                            subtitle: const Text(
+                                "Never burns, tans very easily, deeply pigmented"),
+                            trailing: Container(
+                              height: 50,
+                              width: 50,
+                              margin: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Color.fromARGB(255, 64, 40, 30),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     Expanded(
                       child: Align(
