@@ -4,7 +4,7 @@ import 'package:vitaltracer_app/screens/sign_up_screen.dart';
 import 'components/custom_textfield.dart';
 import 'auth_service.dart';
 import 'package:vitaltracer_app/widgets/sign_up_widget.dart';
-import 'package:vitaltracer_app/screens/user_data_config_screen.dart';
+import 'package:vitaltracer_app/screens/welcome_screen.dart';
 import 'forgot_password_screen.dart';
 
 class SignScreen extends StatelessWidget {
@@ -43,7 +43,7 @@ class SignScreenContent extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const UserDataConfigScreen(),
+                      builder: (context) => const WelcomeScreen(),
                     ),
                   );
                 },
@@ -99,7 +99,7 @@ class SignScreenContent extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const UserDataConfigScreen(),
+                      builder: (context) => const WelcomeScreen(),
                     ),
                   );
                 } else {
@@ -169,7 +169,7 @@ class SignScreenContent extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const UserDataConfigScreen()),
+                          builder: (context) => const WelcomeScreen()),
                     );
                   }
                 },

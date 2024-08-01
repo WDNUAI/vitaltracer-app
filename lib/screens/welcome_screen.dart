@@ -3,14 +3,14 @@ import 'package:vitaltracer_app/screens/home_screen.dart';
 import 'package:vitaltracer_app/widgets/header_widget.dart';
 import 'package:vitaltracer_app/widgets/date_selector_widget.dart';
 
-class UserDataConfigScreen extends StatefulWidget {
-  const UserDataConfigScreen({super.key});
+class WelcomeScreen extends StatefulWidget {
+  const WelcomeScreen({super.key});
 
   @override
-  State<UserDataConfigScreen> createState() => _UserDataConfigScreenState();
+  State<WelcomeScreen> createState() => _WelcomeScreenState();
 }
 
-class _UserDataConfigScreenState extends State<UserDataConfigScreen> {
+class _WelcomeScreenState extends State<WelcomeScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final double _topPadding = 20;
@@ -56,6 +56,7 @@ class _UserDataConfigScreenState extends State<UserDataConfigScreen> {
                                   value: 1,
                                   groupValue: _gender,
                                   onChanged: (value) {
+                                    state.didChange(value);
                                     setState(() {
                                       _gender = value!;
                                     });
@@ -70,6 +71,7 @@ class _UserDataConfigScreenState extends State<UserDataConfigScreen> {
                                   value: 2,
                                   groupValue: _gender,
                                   onChanged: (value) {
+                                    state.didChange(value);
                                     setState(() {
                                       _gender = value!;
                                     });
@@ -84,6 +86,7 @@ class _UserDataConfigScreenState extends State<UserDataConfigScreen> {
                                   value: 3,
                                   groupValue: _gender,
                                   onChanged: (value) {
+                                    state.didChange(value);
                                     setState(() {
                                       _gender = value!;
                                     });
@@ -176,24 +179,74 @@ class _UserDataConfigScreenState extends State<UserDataConfigScreen> {
                     Expanded(
                       child: Align(
                         alignment: Alignment.bottomCenter,
-                        child: FilledButton(
-                          style: FilledButton.styleFrom(
-                            minimumSize: const Size(250, 40),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              height: 18,
+                              width: 18,
+                              margin: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
                             ),
-                          ),
-                          child: const Text("NEXT"),
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const HomeScreen()),
-                              );
-                            }
-                          },
+                            Container(
+                              height: 18,
+                              width: 18,
+                              margin: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                    color:
+                                        Theme.of(context).colorScheme.primary),
+                              ),
+                            ),
+                            Container(
+                              height: 18,
+                              width: 18,
+                              margin: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                    color:
+                                        Theme.of(context).colorScheme.primary),
+                              ),
+                            ),
+                            Container(
+                              height: 18,
+                              width: 18,
+                              margin: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                    color:
+                                        Theme.of(context).colorScheme.primary),
+                              ),
+                            ),
+                          ],
                         ),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: FilledButton(
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size(250, 40),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        ),
+                        child: const Text("NEXT"),
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const HomeScreen()),
+                            );
+                          }
+                        },
                       ),
                     ),
                   ],
