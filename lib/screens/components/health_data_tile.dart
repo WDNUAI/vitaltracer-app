@@ -74,11 +74,7 @@ class HealthDataTile extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Display current date
-                Text(
-                  DateTime.now().toString().split(' ')[0],
-                  style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
-                ),
+               
                 SizedBox(height: 8.h),
                 // Button to choose a device
                 ElevatedButton(
@@ -199,7 +195,7 @@ class HealthDataTile extends StatelessWidget {
       margin: EdgeInsets.only(right: 16.w),
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: Colors.grey[200],
+        color: Colors.white,
         borderRadius: BorderRadius.circular(15.r),
       ),
       child: Column(

@@ -15,7 +15,17 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       // App bar configuration
       appBar: AppBar(
-        title: const Text('Health Overview'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Health Overview'),
+            // Display current date
+            Text(
+              DateTime.now().toString().split(' ')[0],
+              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.normal),
+            ),
+          ],
+        ),
         // Hamburger menu in the leading position
         leading: Builder(
           builder: (context) => HamburgerMenu(
@@ -90,13 +100,8 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
   final ScrollController _scrollController = ScrollController();
   bool _showScrollIndicator = false;
 
-  // Colors for different health data tiles
-  final List<Color> tileColors = [
-    Color(0xFF0099FF), // Blue
-    Color(0xFFFFCC00), // Yellow
-    Color(0xFFFF6600), // Orange
-    Color(0xFF66CCFF), // Light Blue
-  ];
+  // Define a constant neutral background color for all tiles
+  final Color tileBgColor = Colors.white;
 
   @override
   void initState() {
@@ -174,7 +179,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                                     builder: (context) => const DetailedViewScreen()),
                               );
                             },
-                            color: tileColors[0],
+                            color: tileBgColor,
                           ),
                           // ECG tile
                           HealthDataTile(
@@ -188,7 +193,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                                     builder: (context) => const DetailedViewScreen()),
                               );
                             },
-                            color: tileColors[1],
+                            color: tileBgColor,
                           ),
                         ],
                       ),
@@ -199,7 +204,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                         value: '24°C',
                         imagePath: 'lib/images/temp.webp',
                         onTap: () {},
-                        color: tileColors[3],
+                        color: tileBgColor,
                         isTemperature: true,
                       ),
                       SizedBox(height: 16.h),
@@ -224,7 +229,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                                     builder: (context) => const DetailedViewScreen()),
                               );
                             },
-                            color: tileColors[2],
+                            color: tileBgColor,
                           ),
                           // SPO2 tile
                           HealthDataTile(
@@ -238,7 +243,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                                     builder: (context) => const DetailedViewScreen()),
                               );
                             },
-                            color: tileColors[0],
+                            color: tileBgColor,
                           ),
                         ],
                       ),
