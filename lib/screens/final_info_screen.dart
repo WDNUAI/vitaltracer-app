@@ -17,8 +17,6 @@ class _FinalInfoScreenState extends State<FinalInfoScreen> {
   final double _topPadding = 20;
   final double _bottomPadding = 20;
 
-  int _gender = 0;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
