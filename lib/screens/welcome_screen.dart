@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vitaltracer_app/screens/home_screen.dart';
+import 'package:vitaltracer_app/screens/skin_color_screen.dart';
 import 'package:vitaltracer_app/widgets/header_widget.dart';
 import 'package:vitaltracer_app/widgets/date_selector_widget.dart';
 
@@ -189,6 +189,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: Theme.of(context).colorScheme.primary,
+                                border: Border.all(
+                                    color:
+                                        Theme.of(context).colorScheme.primary),
                               ),
                             ),
                             Container(
@@ -243,7 +246,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const HomeScreen()),
+                                  builder: (context) => const SkinColorScreen()),
                             );
                           }
                         },
