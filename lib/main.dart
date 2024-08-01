@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:vitaltracer_app/screens/sign_in_screen.dart';
+import 'package:vitaltracer_app/screens/splash_screen.dart';
 import 'models/user_info.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
           title: 'Health Monitor',
           //Use theme notifier , set light theme to default
           theme: themeNotifier.isDarkMode ? darkTheme : lightTheme, 
-          home: const SignScreen(),
+          home: const SplashScreen(),
         );
       },
     );

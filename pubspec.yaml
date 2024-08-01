@@ -7,8 +7,9 @@ environment:
   sdk: ">=3.4.0 <4.0.0"
 
 dependencies:
-  flutter_blue_plus: ^1.32.0
+  flutter_blue_plus: ^1.5.2
   flutter_bluetooth_serial: ^0.4.0
+  permission_handler: ^11.3.1
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.6

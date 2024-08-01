@@ -2,19 +2,20 @@ import 'package:flutter/material.dart';
 import 'hamburger.dart';
 import '../services/bluetooth.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart' as blc;
 
 class BluetoothConnectionsScreen extends StatefulWidget {
   const BluetoothConnectionsScreen({super.key});
 
   @override
   State<BluetoothConnectionsScreen> createState() =>
-      _BluetoothConnectionsScreenState();
+      BluetoothConnectionsScreenState();
 }
 
-class _BluetoothConnectionsScreenState
+class BluetoothConnectionsScreenState
     extends State<BluetoothConnectionsScreen> {
-  Future<List<BluetoothDevice>>? devices;
-  int previousDeviceCount = 0;
+  Future<List<BluetoothDevice>>? bleDevices;
+  Future<List<blc.BluetoothDevice>>?   blcDevices;
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +59,9 @@ class _BluetoothConnectionsScreenState
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        devices = searchBle(this);
+                        // todo: FOR NOW, only search for bluetooth classic devices.
+                        //  uncomment eventually: bleDevices = searchBle(this);
+                        blcDevices = searchBlc(this);
                       });
                     },
                     child: const Padding(
@@ -75,27 +78,28 @@ class _BluetoothConnectionsScreenState
   /// TODO: Make this content scrollable.
   Widget getDevices(BuildContext context) {
     // Handle the current state of the devices list.
-    return FutureBuilder(
-        future: devices,
-        builder:
-            (BuildContext c, AsyncSnapshot<List<BluetoothDevice>> snapshot) {
-          if (snapshot.data != null) {
-            List<Widget> cards = [];
-            // Create a list of cards that reflects the current state of our scan.
-            for (int i = 0; i < snapshot.data!.length; i++) {
-              cards.add(deviceCard(snapshot.data![i].platformName,
-                  snapshot.data![i].remoteId.toString(), context));
+      return FutureBuilder(
+          future: blcDevices,
+          builder:
+              (BuildContext c, AsyncSnapshot<List<blc.BluetoothDevice>> snapshot) {
+            if (snapshot.data != null) {
+              List<Widget> cards = [];
+              // Create a list of cards that reflects the current state of our scan.
+              for (int i = 0; i < snapshot.data!.length; i++) {
+                cards.add(deviceCard(snapshot.data![i].address,
+                    snapshot.data![i].name.toString(), context));
+              }
+              return Column(children: cards);
+            } else if (snapshot.hasError) {
+              return Text(
+                  'An Error has occured while attempting to search for bluetooth devices.\nError: ${snapshot.error}');
+            } else {
+              return Text('No devices found.');
             }
-            return Column(children: cards);
-          } else if (snapshot.hasError) {
-            return Text(
-                'An Error has occured while attempting to search for bluetooth devices.\nError: ${snapshot.error}');
-          } else {
-            return const Text('No devices found.');
-          }
-        });
+          });
+    }
+
   }
-}
 
 /// Returns a Card representing a discovered vitaltracer device.
 /// Uses the [titleText] and [subHeading] to build the card.
