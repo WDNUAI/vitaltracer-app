@@ -16,6 +16,8 @@ class _UserDataConfigScreenState extends State<UserDataConfigScreen> {
   final double _topPadding = 20;
   final double _bottomPadding = 20;
 
+  int _gender = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,57 +45,80 @@ class _UserDataConfigScreenState extends State<UserDataConfigScreen> {
                     const SizedBox(height: 20),
                     const H3(text: "Gender"),
                     const SizedBox(height: 20),
-                    FormField(builder: (field) {
-                      int gender = 0;
-
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Radio(
-                            value: 1,
-                            groupValue: gender,
-                            onChanged: (value) {
-                              field.setState(() {
-                                gender = value!;
-                              });
-                            },
-                            visualDensity: const VisualDensity(
-                              horizontal: VisualDensity.minimumDensity,
-                              vertical: VisualDensity.minimumDensity,
+                    FormField(
+                      builder: (state) {
+                        return Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Radio(
+                                  value: 1,
+                                  groupValue: _gender,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _gender = value!;
+                                    });
+                                  },
+                                  visualDensity: const VisualDensity(
+                                    horizontal: VisualDensity.minimumDensity,
+                                    vertical: VisualDensity.minimumDensity,
+                                  ),
+                                ),
+                                const Text("Male"),
+                                Radio(
+                                  value: 2,
+                                  groupValue: _gender,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _gender = value!;
+                                    });
+                                  },
+                                  visualDensity: const VisualDensity(
+                                    horizontal: VisualDensity.minimumDensity,
+                                    vertical: VisualDensity.minimumDensity,
+                                  ),
+                                ),
+                                const Text("Female"),
+                                Radio(
+                                  value: 3,
+                                  groupValue: _gender,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _gender = value!;
+                                    });
+                                  },
+                                  visualDensity: const VisualDensity(
+                                    horizontal: VisualDensity.minimumDensity,
+                                    vertical: VisualDensity.minimumDensity,
+                                  ),
+                                ),
+                                const Text("Prefer not to answer"),
+                              ],
                             ),
-                          ),
-                          const Text("Male"),
-                          Radio(
-                            value: 2,
-                            groupValue: gender,
-                            onChanged: (value) {
-                              field.setState(() {
-                                gender = value!;
-                              });
-                            },
-                            visualDensity: const VisualDensity(
-                              horizontal: VisualDensity.minimumDensity,
-                              vertical: VisualDensity.minimumDensity,
-                            ),
-                          ),
-                          const Text("Female"),
-                          Radio(
-                            value: 3,
-                            groupValue: gender,
-                            onChanged: (value) {
-                              field.setState(() {
-                                gender = value!;
-                              });
-                            },
-                            visualDensity: const VisualDensity(
-                              horizontal: VisualDensity.minimumDensity,
-                              vertical: VisualDensity.minimumDensity,
-                            ),
-                          ),
-                          const Text("Prefer not to answer"),
-                        ],
-                      );
-                    }),
+                            state.hasError
+                                ? Text(
+                                    state.errorText!,
+                                    style: const TextStyle(
+                                      color: Color.fromARGB(
+                                        255,
+                                        184,
+                                        54,
+                                        44,
+                                      ),
+                                    ),
+                                  )
+                                : Container(),
+                          ],
+                        );
+                      },
+                      validator: (int? value) {
+                        if (value == null) {
+                          return "Please specify your gender";
+                        }
+                        return null;
+                      },
+                    ),
                     const SizedBox(height: 20),
                     TextFormField(
                       decoration: InputDecoration(
@@ -101,6 +126,7 @@ class _UserDataConfigScreenState extends State<UserDataConfigScreen> {
                         fillColor:
                             Theme.of(context).colorScheme.primaryContainer,
                         hintText: "Your Height",
+                        labelText: "Height",
                         suffixText: "cm",
                       ),
                       validator: (String? value) {
@@ -108,7 +134,7 @@ class _UserDataConfigScreenState extends State<UserDataConfigScreen> {
                           return "Please specify your height";
                         }
 
-                        int? height = int.tryParse(value!);
+                        int? height = int.tryParse(value);
                         if (height == null) {
                           return "Height must be a number";
                         } else if (height < 40) {
@@ -127,14 +153,15 @@ class _UserDataConfigScreenState extends State<UserDataConfigScreen> {
                         fillColor:
                             Theme.of(context).colorScheme.primaryContainer,
                         hintText: "Your Weight",
+                        labelText: "Weight",
                         suffixText: "kg",
                       ),
                       validator: (String? value) {
                         if (value!.isEmpty) {
-                          return "Please specify your height";
+                          return "Please specify your weight";
                         }
 
-                        int? weight = int.tryParse(value!);
+                        int? weight = int.tryParse(value);
                         if (weight == null) {
                           return "Weight must be a number";
                         } else if (weight < 10) {
