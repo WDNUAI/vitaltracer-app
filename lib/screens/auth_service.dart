@@ -49,7 +49,7 @@ class AuthService {
       await _auth.sendPasswordResetEmail(email: email);
     } catch (e) {
       print(e.toString());
-      throw e;
+      rethrow;
     }
   }
 

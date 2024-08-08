@@ -18,6 +18,7 @@ class ClassicConnectionsScreenState extends State<ClassicConnectionsScreen> {
   Future<List<BluetoothDevice>>? bleDevices;
   Future<List<blc.BluetoothDevice>>? blcDevices;
 
+  @override
   Widget build(BuildContext context) {
     return ScreenContent(context);
   }
@@ -40,7 +41,7 @@ class ClassicConnectionsScreenState extends State<ClassicConnectionsScreen> {
         //When Icon is pressed, call Builddrawer() within hamburger class
       ).buildDrawer(context),
       body: Container(
-          margin: EdgeInsets.only(bottom: 20, top: 20),
+          margin: const EdgeInsets.only(bottom: 20, top: 20),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -48,12 +49,13 @@ class ClassicConnectionsScreenState extends State<ClassicConnectionsScreen> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text("Select a VT device:", style: TextStyle(fontSize: 30)),
-                  Spacer(),
+                  const Text("Select a VT device:",
+                      style: TextStyle(fontSize: 30)),
+                  const Spacer(),
                   SingleChildScrollView(
                     child: getDevices(context),
                   ),
-                  Spacer(),
+                  const Spacer(),
                   // 'Search' Button
                   ElevatedButton(
                     onPressed: () {
@@ -62,9 +64,8 @@ class ClassicConnectionsScreenState extends State<ClassicConnectionsScreen> {
                         blcDevices = searchBlc();
                       });
                     },
-                    child: Padding(
-                        padding: EdgeInsets.all(20.0),
-                        child: Text("Search")),
+                    child: const Padding(
+                        padding: EdgeInsets.all(20.0), child: Text("Search")),
                   ),
                 ],
               )

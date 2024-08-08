@@ -15,14 +15,14 @@ class ViewDetailedDatatype extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
+            const Text(
               'Select the type of data to view.',
               style: TextStyle(
                 fontSize: 20.0,
                 color: Colors.blue,
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             DataButton(
@@ -32,7 +32,7 @@ class ViewDetailedDatatype extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => DataDetailedViewPage(
+                    builder: (context) => const DataDetailedViewPage(
                       datatypeTitle: 'Heart Rate',
                       dataGraph: 'lib/images/ECGData.png',
                     ),
@@ -40,7 +40,7 @@ class ViewDetailedDatatype extends StatelessWidget {
                 );
               },
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             DataButton(
@@ -50,7 +50,7 @@ class ViewDetailedDatatype extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => DataDetailedViewPage(
+                    builder: (context) => const DataDetailedViewPage(
                       datatypeTitle: 'Blood Pressure',
                       dataGraph: 'lib/images/ECGData.png',
                     ),
@@ -58,7 +58,7 @@ class ViewDetailedDatatype extends StatelessWidget {
                 );
               },
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             DataButton(
@@ -68,7 +68,7 @@ class ViewDetailedDatatype extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => DataDetailedViewPage(
+                    builder: (context) => const DataDetailedViewPage(
                       datatypeTitle: 'Temperature',
                       dataGraph: 'lib/images/ECGData.png',
                     ),
@@ -76,7 +76,7 @@ class ViewDetailedDatatype extends StatelessWidget {
                 );
               },
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             DataButton(
@@ -86,7 +86,7 @@ class ViewDetailedDatatype extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => DataDetailedViewPage(
+                    builder: (context) => const DataDetailedViewPage(
                       datatypeTitle: 'Oxygen Levels',
                       dataGraph: 'lib/images/ECGData.png',
                     ),
@@ -94,7 +94,7 @@ class ViewDetailedDatatype extends StatelessWidget {
                 );
               },
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             DataButton(
@@ -104,7 +104,7 @@ class ViewDetailedDatatype extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => DataDetailedViewPage(
+                    builder: (context) => const DataDetailedViewPage(
                       datatypeTitle: 'Activity',
                       dataGraph: 'lib/images/ECGData.png',
                     ),
