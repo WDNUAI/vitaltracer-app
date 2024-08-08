@@ -4,18 +4,19 @@ import '../services/bluetooth.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart' as blc;
 
-class BluetoothConnectionsScreen extends StatefulWidget {
-  const BluetoothConnectionsScreen({super.key});
+// This is the ClassicConnectionsScreen class for Classic Bluetooth devices
+class ClassicConnectionsScreen extends StatefulWidget {
+  const ClassicConnectionsScreen({super.key});
 
   @override
-  State<BluetoothConnectionsScreen> createState() =>
-      BluetoothConnectionsScreenState();
+  State<ClassicConnectionsScreen> createState() =>
+      ClassicConnectionsScreenState(); // Corrected the state class
 }
 
-class BluetoothConnectionsScreenState
-    extends State<BluetoothConnectionsScreen> {
+// State class for ClassicConnectionsScreen
+class ClassicConnectionsScreenState extends State<ClassicConnectionsScreen> {
   Future<List<BluetoothDevice>>? bleDevices;
-  Future<List<blc.BluetoothDevice>>?   blcDevices;
+  Future<List<blc.BluetoothDevice>>? blcDevices;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +26,7 @@ class BluetoothConnectionsScreenState
   Scaffold ScreenContent(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Connections'),
+        title: const Text('Vital Tracer Home'),
         //Create Hamburger Menu
         leading: Builder(
           builder: (context) => HamburgerMenu(
@@ -59,9 +60,8 @@ class BluetoothConnectionsScreenState
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        // todo: FOR NOW, only search for bluetooth classic devices.
-                        //  uncomment eventually: bleDevices = searchBle(this);
-                        blcDevices = searchBlc(this);
+                        // Perform a search for Bluetooth Classic devices
+                        blcDevices = searchBlc();
                       });
                     },
                     child: const Padding(
@@ -78,28 +78,27 @@ class BluetoothConnectionsScreenState
   /// TODO: Make this content scrollable.
   Widget getDevices(BuildContext context) {
     // Handle the current state of the devices list.
-      return FutureBuilder(
-          future: blcDevices,
-          builder:
-              (BuildContext c, AsyncSnapshot<List<blc.BluetoothDevice>> snapshot) {
-            if (snapshot.data != null) {
-              List<Widget> cards = [];
-              // Create a list of cards that reflects the current state of our scan.
-              for (int i = 0; i < snapshot.data!.length; i++) {
-                cards.add(deviceCard(snapshot.data![i].address,
-                    snapshot.data![i].name.toString(), context));
-              }
-              return Column(children: cards);
-            } else if (snapshot.hasError) {
-              return Text(
-                  'An Error has occured while attempting to search for bluetooth devices.\nError: ${snapshot.error}');
-            } else {
-              return Text('No devices found.');
+    return FutureBuilder(
+        future: blcDevices,
+        builder: (BuildContext c,
+            AsyncSnapshot<List<blc.BluetoothDevice>> snapshot) {
+          if (snapshot.data != null) {
+            List<Widget> cards = [];
+            // Create a list of cards that reflects the current state of our scan.
+            for (int i = 0; i < snapshot.data!.length; i++) {
+              cards.add(deviceCard(snapshot.data![i].address,
+                  snapshot.data![i].name.toString(), context));
             }
-          });
-    }
-
+            return Column(children: cards);
+          } else if (snapshot.hasError) {
+            return Text(
+                'An Error has occurred while attempting to search for Bluetooth devices.\nError: ${snapshot.error}');
+          } else {
+            return Text('No devices found.');
+          }
+        });
   }
+}
 
 /// Returns a Card representing a discovered vitaltracer device.
 /// Uses the [titleText] and [subHeading] to build the card.
@@ -131,4 +130,10 @@ Card deviceCard(String titleText, String subHeading, BuildContext context) {
               )
             ],
           )));
+}
+
+/// Example searchBlc function definition
+Future<List<blc.BluetoothDevice>> searchBlc() async {
+  // Implement logic to search for Bluetooth Classic devices
+  return []; // Return a list of discovered devices
 }

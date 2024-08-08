@@ -3,7 +3,7 @@ import 'package:settings_ui/settings_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:vitaltracer_app/models/theme_notifier.dart';
 import 'detailed_view_screen.dart';
-import 'bluetooth-connections-screen.dart';
+import 'ble-connections-screen.dart';
 
 class Settings extends StatelessWidget {
   const Settings({super.key});

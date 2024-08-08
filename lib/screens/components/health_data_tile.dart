@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../bluetooth-connections-screen.dart';
+import '../ble-connections-screen.dart';
 
 /// A versatile widget for displaying various types of health data tiles
 class HealthDataTile extends StatelessWidget {

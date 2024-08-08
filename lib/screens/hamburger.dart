@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'settings.dart';
 import 'home_screen.dart';
 import 'bluetooth-connections-screen.dart';
+import 'ble-connections-screen.dart';
 import 'view_detailed_datatype.dart';
 import 'test_view_graph.dart';
 import 'auth_service.dart';
 import 'sign_in_screen.dart';
 import 'recorded_data_screen.dart';
-
+import 'ecg_test_graph.dart';
 class HamburgerMenu extends StatelessWidget {
   final VoidCallback onPressed;
   final AuthService _auth;
@@ -60,7 +61,21 @@ class HamburgerMenu extends StatelessWidget {
           ),
           //Set Title of Button
           ListTile(
-            title: const Text('Connections'),
+            title: const Text('Bluetooth classic Connections'),
+            onTap: () {
+              // Connections Tap
+              Navigator.pop(
+                  context); // Close the drawer and open the new context
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const ClassicConnectionsScreen()),
+              );
+            },
+          ),
+          //Set Title of Button
+ ListTile(
+            title: const Text('Ble Connections'),
             onTap: () {
               // Connections Tap
               Navigator.pop(
@@ -72,8 +87,6 @@ class HamburgerMenu extends StatelessWidget {
               );
             },
           ),
-          //Set Title of Button
-
           ListTile(
               title: const Text('Previous Sessions'),
               onTap: () {
@@ -92,6 +105,16 @@ class HamburgerMenu extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                       builder: (context) => const TestViewGraph()),
+                );
+              }),
+                 ListTile(
+              title: const Text('Record with ESP32'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const ViewGraph()),
                 );
               }),
           ListTile(
