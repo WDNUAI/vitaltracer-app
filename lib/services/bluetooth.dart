@@ -4,7 +4,7 @@ import 'dart:async';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart' as blc;
 import 'package:permission_handler/permission_handler.dart';
-import '../screens/bluetooth-connections-screen.dart';
+import '../screens/ble-connections-screen.dart';
 
 
 /// Searches for nearby BLE bluetooth devices.

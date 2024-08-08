@@ -1,10 +1,14 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:vitaltracer_app/services/bluetooth_service.dart';
+import 'detailed_view_screen.dart';
 import 'components/health_data_tile.dart';
 import 'hamburger.dart';
-import 'bluetooth-connections-screen.dart';
+import 'ble-connections-screen.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'ecg_test_graph.dart';
 import 'settings.dart';
-import 'detailed_view_screen.dart';
+
 
 /// Main HomeScreen widget that sets up the app's structure
 class HomeScreen extends StatelessWidget {
@@ -96,6 +100,8 @@ class HomeScreenContent extends StatefulWidget {
 }
 
 class _HomeScreenContentState extends State<HomeScreenContent> {
+  Timer? _timer;
+  double? _currentTemperature = VTBluetoothService.currentTemperature;
   // ScrollController to manage scrolling behavior
   final ScrollController _scrollController = ScrollController();
   bool _showScrollIndicator = false;
@@ -112,12 +118,20 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
 
   @override
   void dispose() {
+    _timer?.cancel();
     // Clean up the scroll controller when the widget is disposed
     _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
     super.dispose();
   }
 
+void _startTimer() {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        _currentTemperature = VTBluetoothService.currentTemperature;
+      });
+    });
+  }
   // Listener for scroll events to show/hide scroll indicator
   void _scrollListener() {
     if (_scrollController.offset >= _scrollController.position.maxScrollExtent &&
@@ -190,7 +204,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => const DetailedViewScreen()),
+                                    builder: (context) => const ViewGraph()),
                               );
                             },
                             color: tileBgColor,
@@ -201,7 +215,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                       // Body Temperature tile
                       HealthDataTile(
                         label: 'Body Temperature',
-                        value: '24°C',
+                        value:  '${_currentTemperature?.toStringAsFixed(1) ?? "N/A"} °C',
                         imagePath: 'lib/images/temp.webp',
                         onTap: () {},
                         color: tileBgColor,
