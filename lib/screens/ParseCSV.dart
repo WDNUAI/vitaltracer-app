@@ -1,12 +1,6 @@
 import 'package:csv/csv.dart' as csv;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/material.dart';
-
-//https://pub.dev/documentation/csv/latest/csv/CsvToListConverter-class.html   Methods
-//https://pub.dev/packages/csv      Usage of csv import
-
-//resource for exporting file collected and creating csv from data read from session: https://stackoverflow.com/questions/65472270/how-to-create-and-export-csv-file-in-flutter
 
 class ParseCSV {
   // Read CSV file from Folder - In future after a connection is made to a patch, we need to store the CSV file in Data folder and dynamically search for it before below statement
@@ -26,10 +20,18 @@ class ParseCSV {
   // First column is time.  Will need to create distinct methods for each stream of data ( time vs IR counts  &&  time vs RedCounts  && time vs Activty?)
   static List<FlSpot> _generateDataPoints(List<List<String>> data, int column) {
     //parse time and indicated column ( 1 = ECG , 2 = IR)
-    return data
-        .skip(20)
-        .map((row) => FlSpot(double.parse(row[0]), double.parse(row[column])))
-        .toList();
+    List<FlSpot> spots = [];
+    for (var row in data.skip(20)) {
+      try {
+        double xValue = double.parse(row[0]);
+        double yValue = double.parse(row[column]);
+        spots.add(FlSpot(xValue, yValue));
+      } catch (e) {
+        print('Error parsing row: $row');
+        print('Error: $e');
+      }
+    }
+    return spots;
   }
 
   // Combine reading and parsing the CSV data into FlSpot objects

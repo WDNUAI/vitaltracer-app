@@ -5,7 +5,7 @@ import 'auth_service.dart';
 import 'components/custom_textfield.dart';
 
 class ForgotPasswordScreen extends StatelessWidget {
-  const ForgotPasswordScreen({Key? key}) : super(key: key);
+  const ForgotPasswordScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +21,7 @@ class ForgotPasswordScreen extends StatelessWidget {
 }
 
 class ForgotPasswordContent extends StatefulWidget {
-  const ForgotPasswordContent({Key? key}) : super(key: key);
+  const ForgotPasswordContent({super.key});
 
   @override
   _ForgotPasswordContentState createState() => _ForgotPasswordContentState();

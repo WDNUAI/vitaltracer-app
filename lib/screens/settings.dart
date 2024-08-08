@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:settings_ui/settings_ui.dart';
+import 'package:provider/provider.dart';
+import 'package:vitaltracer_app/models/theme_notifier.dart';
 import 'detailed_view_screen.dart';
-import 'bluetooth-connections-screen.dart';
+import 'ble-connections-screen.dart';
 
-//documentation on settings widgets here: https://pub.dev/documentation/settings_ui/latest/
 class Settings extends StatelessWidget {
   const Settings({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Get the themeNotifier from Provider
+    final themeNotifier = Provider.of<ThemeNotifier>(context);
+
     return Scaffold(
       appBar: AppBar(
         //give title to list of below apps
@@ -18,12 +22,12 @@ class Settings extends StatelessWidget {
       body: SettingsList(
         sections: [
           SettingsSection(
-            title: Text('General'),
+            title: const Text('General'),
             tiles: <SettingsTile>[
               SettingsTile.navigation(
                 // Handle navigation to send data page
-                leading: Icon(Icons.send),
-                title: Text('Send Data To Professional'),
+                leading: const Icon(Icons.send),
+                title: const Text('Send Data To Professional'),
                 onPressed: (BuildContext context) {
                   //show pop up when pressed - place holder for now as more logic needs to added  ( where do we send data ? input email)
                   showDialog(
@@ -31,8 +35,8 @@ class Settings extends StatelessWidget {
                     builder: (BuildContext context) {
                       //define popup with alert dialog
                       return AlertDialog(
-                        title: Text('Data Sent'),
-                        content: Text('Data from last session sent!'),
+                        title: const Text('Data Sent'),
+                        content: const Text('Data from last session sent!'),
                         actions: [
                           TextButton(
                             onPressed: () {
@@ -40,7 +44,7 @@ class Settings extends StatelessWidget {
                               Navigator.of(context).pop();
                             },
                             //display text to remove dialog box
-                            child: Text('OK'),
+                            child: const Text('OK'),
                           ),
                         ],
                       );
@@ -49,8 +53,8 @@ class Settings extends StatelessWidget {
                 },
               ),
               SettingsTile.navigation(
-                leading: Icon(Icons.watch),
-                title: Text('Connections'),
+                leading: const Icon(Icons.watch),
+                title: const Text('Connections'),
                 onPressed: (BuildContext context) {
                   //pass context and the screen to goto - replace with connections page once made
                   Navigator.push(
@@ -63,17 +67,18 @@ class Settings extends StatelessWidget {
               ),
               SettingsTile.navigation(
                 //Can Modify icons for btn below
-                leading: Icon(Icons.people),
-                title: Text('Input Personal Data'),
+                leading: const Icon(Icons.people),
+                title: const Text('Input Personal Data'),
                 onPressed: (BuildContext context) {
                   // Handle navigation to Input Data Page
                 },
               ),
               //Dark Mode Toggle
               SettingsTile.switchTile(
-                onToggle: (bool value) {},
-                initialValue:
-                    false, //dark mode is initially off when booting app
+                onToggle: (bool value) {
+                  themeNotifier.toggleTheme(value);
+                },
+                initialValue: themeNotifier.isDarkMode, // Get initial value from themeNotifier
                 leading: Icon(Icons.dark_mode),
                 title: Text('Dark Mode'),
               ),

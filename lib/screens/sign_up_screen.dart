@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:vitaltracer_app/screens/home_screen.dart';
 import 'components/custom_textfield.dart';
 import 'package:vitaltracer_app/widgets/sign_up_widget.dart';
-import 'user_data_config_screen.dart';
+import 'welcome_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'auth_service.dart';
@@ -95,7 +94,7 @@ class SignScreenContent extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const UserDataConfigScreen(),
+                        builder: (context) => const WelcomeScreen(),
                       ),
                     );
                   } else {

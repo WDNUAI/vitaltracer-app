@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'detailed_view_screen.dart';
-import 'components/health_data_tile.dart';
 import 'settings.dart';
 import 'home_screen.dart';
 import 'bluetooth-connections-screen.dart';
+import 'ble-connections-screen.dart';
 import 'view_detailed_datatype.dart';
 import 'test_view_graph.dart';
 import 'auth_service.dart';
 import 'sign_in_screen.dart';
-
+import 'recorded_data_screen.dart';
+import 'ecg_test_graph.dart';
 class HamburgerMenu extends StatelessWidget {
   final VoidCallback onPressed;
   final AuthService _auth;
@@ -16,12 +16,12 @@ class HamburgerMenu extends StatelessWidget {
 //Forced me to use a value that is not null not sure consequences of VoidCallback are - was added using quick fix btn
 
 //Below Code creates clickable icon, position of icon is determined in the class where it is called
-  HamburgerMenu({required this.onPressed}) : _auth = AuthService();
+  HamburgerMenu({super.key, required this.onPressed}) : _auth = AuthService();
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      icon: Icon(Icons.menu),
+      icon: const Icon(Icons.menu),
       onPressed: onPressed,
     );
   }
@@ -61,7 +61,21 @@ class HamburgerMenu extends StatelessWidget {
           ),
           //Set Title of Button
           ListTile(
-            title: const Text('Connections'),
+            title: const Text('Bluetooth classic Connections'),
+            onTap: () {
+              // Connections Tap
+              Navigator.pop(
+                  context); // Close the drawer and open the new context
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const ClassicConnectionsScreen()),
+              );
+            },
+          ),
+          //Set Title of Button
+ ListTile(
+            title: const Text('Ble Connections'),
             onTap: () {
               // Connections Tap
               Navigator.pop(
@@ -73,16 +87,14 @@ class HamburgerMenu extends StatelessWidget {
               );
             },
           ),
-          //Set Title of Button
-
           ListTile(
-              title: const Text('View Detailed Data'),
+              title: const Text('Previous Sessions'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const ViewDetailedDatatype()),
+                      builder: (context) => const RecordedDataScreen()),
                 );
               }),
           ListTile(
@@ -93,6 +105,16 @@ class HamburgerMenu extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                       builder: (context) => const TestViewGraph()),
+                );
+              }),
+                 ListTile(
+              title: const Text('Record with ESP32'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const ViewGraph()),
                 );
               }),
           ListTile(

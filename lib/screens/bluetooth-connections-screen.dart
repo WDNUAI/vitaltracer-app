@@ -1,24 +1,24 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'hamburger.dart';
-import 'dart:developer';
 import '../services/bluetooth.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart' as blc;
 
-class BluetoothConnectionsScreen extends StatefulWidget {
-  const BluetoothConnectionsScreen({super.key});
+// This is the ClassicConnectionsScreen class for Classic Bluetooth devices
+class ClassicConnectionsScreen extends StatefulWidget {
+  const ClassicConnectionsScreen({super.key});
 
   @override
-  State<BluetoothConnectionsScreen> createState() =>
-      _BluetoothConnectionsScreenState();
+  State<ClassicConnectionsScreen> createState() =>
+      ClassicConnectionsScreenState(); // Corrected the state class
 }
 
-class _BluetoothConnectionsScreenState
-    extends State<BluetoothConnectionsScreen> {
-  Future<List<BluetoothDevice>>? devices;
-  int previousDeviceCount = 0;
+// State class for ClassicConnectionsScreen
+class ClassicConnectionsScreenState extends State<ClassicConnectionsScreen> {
+  Future<List<BluetoothDevice>>? bleDevices;
+  Future<List<blc.BluetoothDevice>>? blcDevices;
 
+  @override
   Widget build(BuildContext context) {
     return ScreenContent(context);
   }
@@ -41,7 +41,7 @@ class _BluetoothConnectionsScreenState
         //When Icon is pressed, call Builddrawer() within hamburger class
       ).buildDrawer(context),
       body: Container(
-          margin: EdgeInsets.only(bottom: 20, top: 20),
+          margin: const EdgeInsets.only(bottom: 20, top: 20),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -49,22 +49,23 @@ class _BluetoothConnectionsScreenState
               Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text("Select a VT device:", style: TextStyle(fontSize: 30)),
-                  Spacer(),
+                  const Text("Select a VT device:",
+                      style: TextStyle(fontSize: 30)),
+                  const Spacer(),
                   SingleChildScrollView(
                     child: getDevices(context),
                   ),
-                  Spacer(),
+                  const Spacer(),
                   // 'Search' Button
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        devices = searchBle(this);
+                        // Perform a search for Bluetooth Classic devices
+                        blcDevices = searchBlc();
                       });
                     },
-                    child: Padding(
-                        padding: EdgeInsets.all(20.0),
-                        child: Text("Search")),
+                    child: const Padding(
+                        padding: EdgeInsets.all(20.0), child: Text("Search")),
                   ),
                 ],
               )
@@ -78,20 +79,20 @@ class _BluetoothConnectionsScreenState
   Widget getDevices(BuildContext context) {
     // Handle the current state of the devices list.
     return FutureBuilder(
-        future: devices,
-        builder:
-            (BuildContext c, AsyncSnapshot<List<BluetoothDevice>> snapshot) {
+        future: blcDevices,
+        builder: (BuildContext c,
+            AsyncSnapshot<List<blc.BluetoothDevice>> snapshot) {
           if (snapshot.data != null) {
             List<Widget> cards = [];
             // Create a list of cards that reflects the current state of our scan.
             for (int i = 0; i < snapshot.data!.length; i++) {
-              cards.add(deviceCard(snapshot.data![i].platformName,
-                  snapshot.data![i].remoteId.toString(), context));
+              cards.add(deviceCard(snapshot.data![i].address,
+                  snapshot.data![i].name.toString(), context));
             }
             return Column(children: cards);
           } else if (snapshot.hasError) {
             return Text(
-                'An Error has occured while attempting to search for bluetooth devices.\nError: ${snapshot.error}');
+                'An Error has occurred while attempting to search for Bluetooth devices.\nError: ${snapshot.error}');
           } else {
             return Text('No devices found.');
           }
@@ -129,4 +130,10 @@ Card deviceCard(String titleText, String subHeading, BuildContext context) {
               )
             ],
           )));
+}
+
+/// Example searchBlc function definition
+Future<List<blc.BluetoothDevice>> searchBlc() async {
+  // Implement logic to search for Bluetooth Classic devices
+  return []; // Return a list of discovered devices
 }

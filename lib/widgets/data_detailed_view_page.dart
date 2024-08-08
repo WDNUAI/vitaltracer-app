@@ -22,21 +22,21 @@ class DataDetailedViewPage extends StatelessWidget {
               children: [
                 ElevatedButton(
                   onPressed: () {},
-                  child: Text('Hourly'),
+                  child: const Text('Hourly'),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 20,
                 ),
                 ElevatedButton(
                   onPressed: () {},
-                  child: Text('Daily'),
+                  child: const Text('Daily'),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 20,
                 ),
                 ElevatedButton(
                   onPressed: () {},
-                  child: Text('Weekly'),
+                  child: const Text('Weekly'),
                 ),
               ],
             ),
