@@ -15,7 +15,7 @@ class HealthDataTile extends StatelessWidget {
   final bool isActivity;
 
   /// Constructor for the HealthDataTile
-  /// 
+  ///
   /// [label]: The title or name of the health data
   /// [value]: The current value or status of the health data
   /// [imagePath]: Path to the icon or image representing the data
@@ -74,7 +74,6 @@ class HealthDataTile extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-               
                 SizedBox(height: 8.h),
                 // Button to choose a device
                 ElevatedButton(
@@ -82,7 +81,8 @@ class HealthDataTile extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const BluetoothConnectionsScreen()),
+                          builder: (context) =>
+                              const BluetoothConnectionsScreen()),
                     );
                   },
                   child: Text('Choose Device'),
@@ -172,7 +172,8 @@ class HealthDataTile extends StatelessWidget {
                 // Temperature label
                 Text(
                   label,
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+                  style:
+                      TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 4.h),
                 // Temperature value

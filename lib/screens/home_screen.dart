@@ -9,7 +9,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'ecg_test_graph.dart';
 import 'settings.dart';
 
-
 /// Main HomeScreen widget that sets up the app's structure
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -125,16 +124,18 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
     super.dispose();
   }
 
-void _startTimer() {
+  void _startTimer() {
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       setState(() {
         _currentTemperature = VTBluetoothService.currentTemperature;
       });
     });
   }
+
   // Listener for scroll events to show/hide scroll indicator
   void _scrollListener() {
-    if (_scrollController.offset >= _scrollController.position.maxScrollExtent &&
+    if (_scrollController.offset >=
+            _scrollController.position.maxScrollExtent &&
         !_scrollController.position.outOfRange) {
       setState(() {
         _showScrollIndicator = false;
@@ -190,7 +191,8 @@ void _startTimer() {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => const DetailedViewScreen()),
+                                    builder: (context) =>
+                                        const DetailedViewScreen()),
                               );
                             },
                             color: tileBgColor,
@@ -215,7 +217,8 @@ void _startTimer() {
                       // Body Temperature tile
                       HealthDataTile(
                         label: 'Body Temperature',
-                        value:  '${_currentTemperature?.toStringAsFixed(1) ?? "N/A"} °C',
+                        value:
+                            '${_currentTemperature?.toStringAsFixed(1) ?? "N/A"} °C',
                         imagePath: 'lib/images/temp.webp',
                         onTap: () {},
                         color: tileBgColor,
@@ -240,7 +243,8 @@ void _startTimer() {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => const DetailedViewScreen()),
+                                    builder: (context) =>
+                                        const DetailedViewScreen()),
                               );
                             },
                             color: tileBgColor,
@@ -254,7 +258,8 @@ void _startTimer() {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => const DetailedViewScreen()),
+                                    builder: (context) =>
+                                        const DetailedViewScreen()),
                               );
                             },
                             color: tileBgColor,
@@ -265,7 +270,8 @@ void _startTimer() {
                       // Activity section
                       Text(
                         'Activity',
-                        style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 18.sp, fontWeight: FontWeight.bold),
                       ),
                       SizedBox(height: 8.h),
                       // Horizontal scrollable list of activity tiles

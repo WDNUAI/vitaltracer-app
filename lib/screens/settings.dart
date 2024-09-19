@@ -78,7 +78,8 @@ class Settings extends StatelessWidget {
                 onToggle: (bool value) {
                   themeNotifier.toggleTheme(value);
                 },
-                initialValue: themeNotifier.isDarkMode, // Get initial value from themeNotifier
+                initialValue: themeNotifier
+                    .isDarkMode, // Get initial value from themeNotifier
                 leading: Icon(Icons.dark_mode),
                 title: Text('Dark Mode'),
               ),
