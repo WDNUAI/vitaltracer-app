@@ -1,7 +1,16 @@
 name: VitalTracer App Workflow - develop branch
 on:
-    pull_request:
-        branches:
-            - develop
+  push:
+    branches:
+      - feature/actions-workflow
 jobs:
-    
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version-file: pubspec.yaml
+      - run: flutter --version
