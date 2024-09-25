@@ -15,17 +15,17 @@ class LiveData {
 
 class TestViewGraph extends StatefulWidget {
   const TestViewGraph({Key? key}) : super(key: key);
-
   @override
   _ViewGraphState createState() => _ViewGraphState();
 }
 
 class _ViewGraphState extends State<TestViewGraph> {
+  //init live data chart variables
   List<LiveData> ecgChartData = [];
   List<LiveData> irChartData = [];
   List<LiveData> activityChartData = [];
   List<LiveData> redCountChartData = [];
-
+//init controllers for each chart
   ChartSeriesController? _ecgChartSeriesController;
   ChartSeriesController? _irChartSeriesController;
   ChartSeriesController? _activityChartSeriesController;
@@ -39,12 +39,10 @@ class _ViewGraphState extends State<TestViewGraph> {
   bool showRedCountGraph = true;
 
 double zoomFactor = 1.0; // Initially no zoom
-  late StreamSubscription<List<int>> ecgSubscription;
+    late StreamSubscription<List<int>> ecgSubscription;
     late StreamSubscription<List<int>> activitySubscription;
-
-      late StreamSubscription<double> temperatureSubscription;
-        
-  Timer? _chartUpdateTimer;
+    late StreamSubscription<double> temperatureSubscription;
+   Timer? _chartUpdateTimer;
 
   @override
   void initState() {
@@ -64,27 +62,20 @@ double zoomFactor = 1.0; // Initially no zoom
 
 void _initializeData() {
   
-  
-  
-  
+  //init bluetooth services for ecg and activty data - when we figure out how the data looks from Parse the Stream 
   ecgSubscription = VTBluetoothService.ecgStream.listen((ecgData) {
     if (mounted) {
       _addDataInBatch(ecgData, 'ECG');
     }
   });
-
   activitySubscription = VTBluetoothService.activityStream.listen((activityData) {
   print('Received activity data: $activityData'); // Debugging output
   if (mounted) {
     _addDataInBatch(activityData, 'Activity');
   }
 });
-
-
 }
 
-
-  int maxDataPoints = 300; // Set the maximum number of points to display
 // Add this variable to store the last activity value
 int lastActivityValue = 0; // Start with 0 as the default value
 void _addDataInBatch(List<int> data, String source) {
@@ -102,7 +93,7 @@ void _addDataInBatch(List<int> data, String source) {
       irChartData.add(LiveData(time, 0, irValue, 0, 0));
     } else if (source == 'Activity') {
       int activityValue = (data[i + 1] << 8) | data[i];
-      activityValue = activityValue > 0 ? 1 : 0; // Binary transformation
+      activityValue = activityValue > 0 ? 1 : 0; // Binary transformation - values can only be 1 or zero
       activityChartData.add(LiveData(time, 0, 0, activityValue, 0));
     } else if (source == 'RedCount') {
       int redCountValue = (data[i + 1] << 8) | data[i];
@@ -113,7 +104,7 @@ void _addDataInBatch(List<int> data, String source) {
 void _updateChart() {
   double currentTime = DateTime.now().millisecondsSinceEpoch / 1000.0;
 
-  // Apply zoom factor to extend the time window for data retention
+  // Apply zoom factor to extend the time window for data retention - can customative value in expression to change how long x axis will be
   ecgChartData.removeWhere((data) => currentTime - startTime - data.time > 3 * zoomFactor);
   irChartData.removeWhere((data) => currentTime - startTime - data.time > 4 * zoomFactor);
   activityChartData.removeWhere((data) => currentTime - startTime - data.time > 8 * zoomFactor);
@@ -144,6 +135,7 @@ void _updateChart() {
 
   @override
   Widget build(BuildContext context) {
+    //calculate amount of room on screen given the visibility of each graph
     int visibleGraphs = (showIRGraph ? 1 : 0) +
                         (showECGGraph ? 1 : 0) +
                         (showRedCountGraph ? 1 : 0) +
@@ -190,7 +182,7 @@ void _updateChart() {
     ),
   ],
 ),
-
+//Build chart containers
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -219,6 +211,7 @@ void _updateChart() {
     child: Stack(
       children: [
         SfCartesianChart(
+          //Below code fixed lag -using FastLineSeries is optimal for plotting
           series: <FastLineSeries<LiveData, double>>[
             FastLineSeries<LiveData, double>(
               onRendererCreated: (ChartSeriesController chartController) {
@@ -249,6 +242,7 @@ void _updateChart() {
           ),
           primaryYAxis: NumericAxis(
             title: AxisTitle(text: title),
+            //Set min and max values of activity chart to allow user to see it easier
             minimum: title == 'Activity' ? -1 : null, // Set minimum for Activity
             maximum: title == 'Activity' ? 2 : null, // Set maximum for Activity
           ),
