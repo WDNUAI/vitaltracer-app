@@ -4,16 +4,26 @@ on:
     branches:
       - main
 jobs:
-  build:
-    name: Build
+  build-and-distribute:
+    name: Build and Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: stable
           flutter-version-file: pubspec.yaml
-      - run: flutter --version
-  # distribute:
-  #     name: Distribute
-  #     runs-on: ubuntu-latest
+      - name: Build APK
+        run: |
+          flutter pub get
+          flutter build apk
+      - name: Push APK to Releases
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "build/app/outputs/flutter-apk/*.apk"
+          tag: ${{ github.ref_name }}
+          commit: ${{ github.sha }}
