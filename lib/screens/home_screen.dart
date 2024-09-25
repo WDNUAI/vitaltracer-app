@@ -9,25 +9,39 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'ecg_test_graph.dart';
 import 'settings.dart';
 
+int appBarFontSize = 0;
+bool _isTablet = false;
 
 /// Main HomeScreen widget that sets up the app's structure
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  HomeScreen({super.key});
+
+
 
   @override
   Widget build(BuildContext context) {
+    if (MediaQuery.of(context).size.shortestSide > 600 && MediaQuery.of(context).orientation == Orientation.landscape) {
+      _isTablet = true;
+      appBarFontSize = 7;
+    } else {
+      _isTablet = false;
+      appBarFontSize = 15;
+    }
     return Scaffold(
       // App bar configuration
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Health Overview'),
+            Row( children: [
+            Text('Health Overview, ',
+          style: TextStyle(fontSize: appBarFontSize.w, fontWeight: FontWeight.normal) ),
             // Display current date
             Text(
               DateTime.now().toString().split(' ')[0],
-              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.normal),
+              style: TextStyle(fontSize: appBarFontSize.w, fontWeight: FontWeight.normal),
             ),
+            ],)
           ],
         ),
         // Hamburger menu in the leading position
@@ -108,7 +122,6 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
 
   // Define a constant neutral background color for all tiles
   final Color tileBgColor = Colors.white;
-  bool _isTablet = false;
 
   @override
   void initState() {
@@ -150,11 +163,6 @@ void _startTimer() {
 
   @override
   Widget build(BuildContext context) {
-    if (MediaQuery.of(context).size.shortestSide > 600 && MediaQuery.of(context).orientation == Orientation.landscape) {
-      _isTablet = true;
-    } else {
-      _isTablet = false;
-    }
     if (_isTablet) {
       return tabletContent();
     } else {
