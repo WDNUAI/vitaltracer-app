@@ -17,18 +17,28 @@ class VTBluetoothService {
 
   // Current ECG data.
   static List<int>? currentEcgData;
+    static List<int>? currentActivityData;
 
   // UUID for temperature service.
-  static const String TEMPERATURE_SERVICE_UUID = "1809";
+  static const String TEMPERATURE_SERVICE_UUID = "1804";
 
   // UUID for temperature characteristic.
-  static const String TEMPERATURE_CHARACTERISTIC_UUID = "2A1C";
+  static const String TEMPERATURE_CHARACTERISTIC_UUID = "2A1E";
 
   // UUID for ECG service.
   static const String ECG_SERVICE_UUID = "181D";
 
   // UUID for ECG characteristic.
   static const String ECG_CHARACTERISTIC_UUID = "2A37";
+
+  // UUID for Activity service.
+static const String ACTIVITY_SERVICE_UUID = "1809"; 
+
+// UUID for Activity characteristic.
+static const String ACTIVITY_CHARACTERISTIC_UUID = "2A1C"; 
+
+
+
 
   // StreamController for connection state changes, broadcasting the state to multiple listeners.
   static final StreamController<BluetoothConnectionState>
@@ -45,6 +55,14 @@ class VTBluetoothService {
   // Subscription for connection state changes.
   static StreamSubscription<BluetoothConnectionState>?
       _connectionStateSubscription;
+
+      // StreamController for activity data, broadcasting the data to multiple listeners.
+static final StreamController<List<int>> _activityController =
+    StreamController<List<int>>.broadcast();
+
+// Stream for activity data.
+static Stream<List<int>> get activityStream => _activityController.stream;
+
 
   // Timer for reconnect attempts.
   static Timer? _reconnectTimer;
@@ -167,6 +185,7 @@ class VTBluetoothService {
     connectedDevice = null;
     currentTemperature = null;
     currentEcgData = null;
+    currentActivityData=null;
     _connectionStateSubscription?.cancel();
     _reconnectTimer?.cancel();
   }
@@ -218,7 +237,12 @@ class VTBluetoothService {
       currentEcgData = value;
       _ecgController.add(currentEcgData!);
       log('ECG data received: $currentEcgData');
-    }
+    }else if (uuid.endsWith(ACTIVITY_CHARACTERISTIC_UUID.toLowerCase())) {
+    currentActivityData = value;
+    _activityController.add(value);
+    log('Activity data received: $value');
+    
+  }
   }
 
   // Parse temperature value from characteristic.
@@ -245,11 +269,13 @@ class VTBluetoothService {
     connectedDevice = null;
     currentTemperature = null;
     currentEcgData = null;
+   currentActivityData=null; 
     _connectionStateSubscription?.cancel();
     _reconnectTimer?.cancel();
     _scanSubscription?.cancel();
     _temperatureController.close();
     _ecgController.close();
+    _activityController.close(); 
     _connectionStateController.close();
   }
 }

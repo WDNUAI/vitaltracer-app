@@ -1,431 +1,281 @@
- import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:fl_chart/fl_chart.dart' as fl;
 import 'dart:async';
-import 'parseCsv.dart';
+import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+import '../services/bluetooth_service.dart';
 
-//Methods inspired by example code for using syncfusion for live recording::https://github.com/SyncfusionExamples/how-to-create-a-real-time-flutter-chart-in-10-minutes/blob/main/lib/main.dart
+class LiveData {
+  final double time; // Time in seconds
+  final int ecg; // ECG value
+  final int irCount; // IR count value
+  final int activity; // Activity value
+  final int redCount; // Red count value
+
+  LiveData(this.time, this.ecg, this.irCount, this.activity, this.redCount);
+}
 
 class TestViewGraph extends StatefulWidget {
   const TestViewGraph({Key? key}) : super(key: key);
 
   @override
-  _TestViewGraphState createState() => _TestViewGraphState();
+  _ViewGraphState createState() => _ViewGraphState();
 }
 
-class _TestViewGraphState extends State<TestViewGraph> {
-  //define blank data sets to be used as a cache
-  List<LiveData> irChartData = [];
+class _ViewGraphState extends State<TestViewGraph> {
   List<LiveData> ecgChartData = [];
-    List<LiveData> activityChartData = [];
-    List<LiveData> redCountChartData = [];
-  //define controller for each real time chart
-  ChartSeriesController? _irChartSeriesController;
+  List<LiveData> irChartData = [];
+  List<LiveData> activityChartData = [];
+  List<LiveData> redCountChartData = [];
+
   ChartSeriesController? _ecgChartSeriesController;
+  ChartSeriesController? _irChartSeriesController;
   ChartSeriesController? _activityChartSeriesController;
-  ChartSeriesController? _RedCountSeriesController;
-  bool isRecording = false;
-  Timer? _timer;
-  int maxDataPoints =
-      1000; // Modify this value to determine how many points can appear on the graph at once (1000 points x 5ms per point = 5 seconds of dat)
-  int batchSize =
-      20; // Amount of data to be displayed per update (5ms x 50 points = 250ms of data or 1/4 second)
-  double xScaleFactor = 1000.0; // Scale factor to convert ms to seconds
-  List<LiveData> _irStoredData = [];
-  List<LiveData> _ecgStoredData = [];
-  List<LiveData> _activityStoredData = [];
-    List<LiveData> _RedCountStoredData = [];
-  int _currentIndex = 0;
-  bool showIRGraph = true; // Toggle variable to control IR graph
-  bool showECGGraph = true; // Toggle variable to control ECG graph
-  bool showActivityGraph = true; // Toggle variable to control Activity graph
-bool showRedCountGraph = true; // Toggle variable to control red countgraph
+  ChartSeriesController? _redCountSeriesController;
+
+  double xScaleFactor =250;
+  double startTime = 0;
+  bool showIRGraph = true;
+  bool showECGGraph = true;
+  bool showActivityGraph = true;
+  bool showRedCountGraph = true;
+
+double zoomFactor = 1.0; // Initially no zoom
+  late StreamSubscription<List<int>> ecgSubscription;
+    late StreamSubscription<List<int>> activitySubscription;
+
+      late StreamSubscription<double> temperatureSubscription;
+        
+  Timer? _chartUpdateTimer;
 
   @override
   void initState() {
     super.initState();
-  }
+    startTime = DateTime.now().millisecondsSinceEpoch / 1000.0;
+    _initializeData();
 
-  // Initialize data retrieval and start data updates
-  void _initializeData() async {
-    List<fl.FlSpot> irSpots = await ParseCSV.getSpotsFromCSV(2);
-    List<fl.FlSpot> ecgSpots = await ParseCSV.getSpotsFromCSV(1);
-    List<fl.FlSpot> activitySpots = await ParseCSV.getSpotsFromCSV(4);
-    List<fl.FlSpot> redCountSpots = await ParseCSV.getSpotsFromCSV(3);
-
-    // store spots so we only need to parse one time - temp
-    _irStoredData = irSpots.map((spot) => LiveData(spot.x / xScaleFactor, spot.y.toInt(), 0, 0,0)).toList();
-    _ecgStoredData = ecgSpots.map((spot) => LiveData(spot.x / xScaleFactor, 0, spot.y.toInt(), 0,0)).toList();
-    _activityStoredData = activitySpots.map((spot) => LiveData(spot.x / xScaleFactor, 0, 0, spot.y.toInt(),0)).toList();
-    _RedCountStoredData = redCountSpots.map((spot) => LiveData(spot.x / xScaleFactor, 0, 0,0, spot.y.toInt())).toList();
-
-
-
-    _currentIndex = 0; // Reset index to start from the beginning
-    _startDataUpdate(); // Start data updates
-  }
-
-  // Method for starting periodic data updates - first 150 rows have bad data - discuss with Luca on if they want to remove calibration view
-  void _startDataUpdate() {
-    const int updateIntervalMs = 100; // Timer for when we update state again
-    _timer = Timer.periodic(Duration(milliseconds: updateIntervalMs), (timer) {
-      if (!mounted) return; // Check if widget is still mounted
-      if (_currentIndex < _irStoredData.length &&
-          _currentIndex < _ecgStoredData.length &&
-                    _currentIndex < _RedCountStoredData.length &&
-          _currentIndex < _activityStoredData.length) {
-        // Set state to new data points if we have not parsed entire list
+    // Update chart at regular intervals (e.g., every 200 ms)
+    _chartUpdateTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
+      if (mounted) {
         setState(() {
-          // Calculate the number of points to add in batches, allows the application to run smoothly
-          int remainingPoints = _irStoredData.length - _currentIndex;
-          int pointsToAdd =
-              remainingPoints < batchSize ? remainingPoints : batchSize;
-
-          // Add new points to irChartData and remove oldest points if exceeds maxDataPoints
-          if (showIRGraph) {
-            irChartData.addAll(_irStoredData.getRange(
-                _currentIndex, _currentIndex + pointsToAdd));
-            if (irChartData.length > maxDataPoints) {
-              irChartData.removeRange(0, irChartData.length - maxDataPoints);
-            }
-
-            // Update the IR chart
-            if (_irChartSeriesController != null) {
-              _irChartSeriesController!.updateDataSource(
-                addedDataIndexes: List.generate(
-                    pointsToAdd, (i) => irChartData.length - pointsToAdd + i),
-                removedDataIndexes: irChartData.length > maxDataPoints
-                    ? List.generate(irChartData.length - maxDataPoints, (i) => i)
-                    : [],
-              );
-            }
-          }
-
-          // Add new points to ecgChartData and remove oldest points if exceeds maxDataPoints
-          if (showECGGraph) {
-            ecgChartData.addAll(_ecgStoredData.getRange(
-                _currentIndex, _currentIndex + pointsToAdd));
-            if (ecgChartData.length > maxDataPoints) {
-              ecgChartData.removeRange(0, ecgChartData.length - maxDataPoints);
-            }
-
-            // Update the ECG chart
-            if (_ecgChartSeriesController != null) {
-              _ecgChartSeriesController!.updateDataSource(
-                addedDataIndexes: List.generate(
-                    pointsToAdd, (i) => ecgChartData.length - pointsToAdd + i),
-                removedDataIndexes: ecgChartData.length > maxDataPoints
-                    ? List.generate(ecgChartData.length - maxDataPoints, (i) => i)
-                    : [],
-              );
-            }
-          }
-
-
-
-           // Add new points to redcount and remove oldest points if exceeds maxDataPoints
-          if (showRedCountGraph) {
-            redCountChartData.addAll(_RedCountStoredData.getRange(
-                _currentIndex, _currentIndex + pointsToAdd));
-            if (redCountChartData.length > maxDataPoints) {
-              redCountChartData.removeRange(0, redCountChartData.length - maxDataPoints);
-            }
-
-            // Update the red couint
-            if (_RedCountSeriesController != null) {
-              _RedCountSeriesController!.updateDataSource(
-                addedDataIndexes: List.generate(
-                    pointsToAdd, (i) => redCountChartData.length - pointsToAdd + i),
-                removedDataIndexes: redCountChartData.length > maxDataPoints
-                    ? List.generate(redCountChartData.length - maxDataPoints, (i) => i)
-                    : [],
-              );
-            }
-          }
-
-          // Add new points to activityChartData and remove oldest points if exceeds maxDataPoints
-          if (showActivityGraph) {
-            activityChartData.addAll(_activityStoredData.getRange(_currentIndex, _currentIndex + pointsToAdd));
-            if (activityChartData.length > maxDataPoints) {
-              activityChartData.removeRange(0, activityChartData.length - maxDataPoints);
-            }
-
-            // Update the Activity chart
-            if (_activityChartSeriesController != null) {
-              _activityChartSeriesController!.updateDataSource(
-                addedDataIndexes: List.generate(pointsToAdd, (i) => activityChartData.length - pointsToAdd + i),
-                removedDataIndexes: activityChartData.length > maxDataPoints
-                    ? List.generate(activityChartData.length - maxDataPoints, (i) => i)
-                    : [],
-              );
-            }
-          }
-
-          // Update the current index
-          _currentIndex += pointsToAdd;
+          _updateChart();
         });
-
-        // Stop the timer if we've reached the end of the stored data
-        if (_currentIndex >= _irStoredData.length ||
-            _currentIndex >= _ecgStoredData.length ||
-            _currentIndex >= _RedCountStoredData.length ||
-            _currentIndex >= _activityStoredData.length) {
-          timer.cancel();
-        }
       }
     });
   }
 
-//Function to remove timer started when data update is called
+void _initializeData() {
+  
+  
+  
+  
+  ecgSubscription = VTBluetoothService.ecgStream.listen((ecgData) {
+    if (mounted) {
+      _addDataInBatch(ecgData, 'ECG');
+    }
+  });
+
+  activitySubscription = VTBluetoothService.activityStream.listen((activityData) {
+  print('Received activity data: $activityData'); // Debugging output
+  if (mounted) {
+    _addDataInBatch(activityData, 'Activity');
+  }
+});
+
+
+}
+
+
+  int maxDataPoints = 300; // Set the maximum number of points to display
+// Add this variable to store the last activity value
+int lastActivityValue = 0; // Start with 0 as the default value
+void _addDataInBatch(List<int> data, String source) {
+  final currentTime = DateTime.now().millisecondsSinceEpoch / 1000.0;
+  int batchSize = 275; // Adjust the batch size to plot more points
+
+  for (int i = 0; i < data.length && i < batchSize * 4; i += 4) {
+    double time = currentTime - startTime + (i / 2) / xScaleFactor;
+
+    if (source == 'ECG') {
+      int ecgValue = (data[i + 1] << 8) | data[i];
+      ecgChartData.add(LiveData(time, ecgValue, 0, 0, 0));
+    } else if (source == 'IR') {
+      int irValue = (data[i + 1] << 8) | data[i];
+      irChartData.add(LiveData(time, 0, irValue, 0, 0));
+    } else if (source == 'Activity') {
+      int activityValue = (data[i + 1] << 8) | data[i];
+      activityValue = activityValue > 0 ? 1 : 0; // Binary transformation
+      activityChartData.add(LiveData(time, 0, 0, activityValue, 0));
+    } else if (source == 'RedCount') {
+      int redCountValue = (data[i + 1] << 8) | data[i];
+      redCountChartData.add(LiveData(time, 0, 0, 0, redCountValue));
+    }
+  }
+}
+void _updateChart() {
+  double currentTime = DateTime.now().millisecondsSinceEpoch / 1000.0;
+
+  // Apply zoom factor to extend the time window for data retention
+  ecgChartData.removeWhere((data) => currentTime - startTime - data.time > 3 * zoomFactor);
+  irChartData.removeWhere((data) => currentTime - startTime - data.time > 4 * zoomFactor);
+  activityChartData.removeWhere((data) => currentTime - startTime - data.time > 8 * zoomFactor);
+  redCountChartData.removeWhere((data) => currentTime - startTime - data.time > 4 * zoomFactor);
+
+  // Update the chart's data source
+  _ecgChartSeriesController?.updateDataSource(
+    addedDataIndexes: List.generate(ecgChartData.length, (index) => index),
+  );
+  _irChartSeriesController?.updateDataSource(
+    addedDataIndexes: List.generate(irChartData.length, (index) => index),
+  );
+  _activityChartSeriesController?.updateDataSource(
+    addedDataIndexes: List.generate(activityChartData.length, (index) => index),
+  );
+  _redCountSeriesController?.updateDataSource(
+    addedDataIndexes: List.generate(redCountChartData.length, (index) => index),
+  );
+}
+
+
   @override
   void dispose() {
-    _timer?.cancel();
+    ecgSubscription.cancel();
+    _chartUpdateTimer?.cancel();
     super.dispose();
   }
 
-//Widget to Pop out and give user option to toggle graphs and style
   @override
   Widget build(BuildContext context) {
-    // Calculate the height by getting number of grpahs visible, scale size if more charts visible. 
-    int visibleGraphs = (showIRGraph ? 1 : 0) + (showECGGraph ? 1 : 0) + (showRedCountGraph ? 1 : 0) + (showActivityGraph ? 1 : 0);
-    double chartHeight = 600 / (visibleGraphs > 0 ? visibleGraphs : 1);
+    int visibleGraphs = (showIRGraph ? 1 : 0) +
+                        (showECGGraph ? 1 : 0) +
+                        (showRedCountGraph ? 1 : 0) +
+                        (showActivityGraph ? 1 : 0);
+
+    double availableHeight = MediaQuery.of(context).size.height - kToolbarHeight - 80;
+    double chartHeight = visibleGraphs > 0 ? availableHeight / visibleGraphs : availableHeight;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Recording'),
+  title: const Text('Recording'),
+  actions: [
+    IconButton(
+      icon: Icon(zoomFactor == 1.0 ? Icons.zoom_out : Icons.zoom_in),
+      onPressed: () {
+        setState(() {
+          zoomFactor = (zoomFactor == 1.0) ? 2.0 : 1.0; // Toggle zoom factor
+        });
+      },
+    ),
+    Container(
+      margin: const EdgeInsets.only(right: 16),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.blue,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        ),
+        onPressed: () {
+          setState(() {
+            showIRGraph = true;
+            showECGGraph = true;
+            showRedCountGraph = true;
+            showActivityGraph = true;
+          });
+        },
+        child: const Text(
+          'Show All',
+          style: TextStyle(color: Colors.white),
+        ),
       ),
+    ),
+  ],
+),
+
       body: SingleChildScrollView(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Live stream section for recordings
-            Column(
-              children: [
-            
-                const SizedBox(height: 16),
-                const SizedBox(height: 16),
-                // Checkbox to toggle IR graph
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('Show IR Graph'),
-                    Checkbox(
-                      value: showIRGraph,
-                      onChanged: (value) {
-                        setState(() {
-                          showIRGraph = value ?? true;
-                          // Reset the controller when toggling the graph
-                          _irChartSeriesController = null;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-
-                //Plot data if graph toggle is set to true
-                if (showIRGraph)
-                  Container(
-                    height: chartHeight,
-                    child: SfCartesianChart(
-                      series: <LineSeries<LiveData, double>>[
-                        LineSeries<LiveData, double>(
-                          onRendererCreated: (ChartSeriesController controller) {
-                            _irChartSeriesController = controller;
-                          },
-                          dataSource: irChartData,
-                          xValueMapper: (LiveData data, _) => data.time,
-                          yValueMapper: (LiveData data, _) => data.irCount,
-                        ),
-                      ],
-                      primaryXAxis: NumericAxis(
-                        majorGridLines: const MajorGridLines(width: 0),
-                        edgeLabelPlacement: EdgeLabelPlacement.shift,
-                        interval: 1, // Set the interval to 1 for whole numbers
-                      ),
-                      primaryYAxis: NumericAxis(
-                        axisLine: const AxisLine(width: 0),
-                        majorTickLines: const MajorTickLines(size: 0),
-                      ),
-                    ),
-                  ),
-                const SizedBox(height: 16),
-                // Checkbox to toggle ECG graph
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('Show ECG Graph'),
-                    Checkbox(
-                      value: showECGGraph,
-                      onChanged: (value) {
-                        setState(() {
-                          showECGGraph = value ?? true;
-                          // Reset the controller when toggling the graph
-                          _ecgChartSeriesController = null;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-
-
-                //Plot data if graph toggle is set to true
-                if (showECGGraph)
-                  Container(
-                    height: chartHeight,
-                    child: SfCartesianChart(
-                      series: <LineSeries<LiveData, double>>[
-                        LineSeries<LiveData, double>(
-                          onRendererCreated: (ChartSeriesController controller) {
-                            _ecgChartSeriesController = controller;
-                          },
-                          dataSource: ecgChartData,
-                          xValueMapper: (LiveData data, _) => data.time,
-                          yValueMapper: (LiveData data, _) => data.ecg,
-                        ),
-                      ],
-                      primaryXAxis: NumericAxis(
-                        majorGridLines: const MajorGridLines(width: 0),
-                        edgeLabelPlacement: EdgeLabelPlacement.shift,
-                        interval: 1, // Set the interval to 1 for whole numbers
-                      ),
-                      primaryYAxis: NumericAxis(
-
-                        axisLine: const AxisLine(width: 0),
-                        majorTickLines: const MajorTickLines(size: 0),
-                        
-                      ),
-                    ),
-                  ),
-
-
-                  //Checkbox logic
-                  Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('Show Red Counts'),
-                    Checkbox(
-                      value: showRedCountGraph,
-                      onChanged: (value) {
-                        setState(() {
-                          showRedCountGraph = value ?? true;
-                          // reset the controller when toggling the grap
-                          _RedCountSeriesController = null;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-
-                
-                //Plot data if graph toggle is set to true
-                  if (showRedCountGraph)   // Show red coount graph
-                  Container(
-                    height: chartHeight,
-                    child: SfCartesianChart(
-                      series: <LineSeries<LiveData, double>>[
-                        LineSeries<LiveData, double>(
-                          onRendererCreated: (ChartSeriesController controller) {
-                            _RedCountSeriesController = controller;
-                          },
-                          dataSource: redCountChartData,
-                          xValueMapper: (LiveData data, _) => data.time,
-                          yValueMapper: (LiveData data, _) => data.redCount,
-                        ),
-                      ],
-                      primaryXAxis: NumericAxis(
-                        majorGridLines: const MajorGridLines(width: 0),
-                        edgeLabelPlacement: EdgeLabelPlacement.shift,
-                        interval: 1, // set the interval to 1 for whole numbers
-                      ),
-                      primaryYAxis: NumericAxis(
-                        axisLine: const AxisLine(width: 0),
-                        majorTickLines: const MajorTickLines(size: 0),
-                      ),
-                    ),
-                  ),
-
-
-                  
-                const SizedBox(height: 16),
-                // Checkbox to toggle Activity graph
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('Show Activity Graph'),
-                    Checkbox(
-                      value: showActivityGraph,
-                      onChanged: (value) {
-                        setState(() {
-                          showActivityGraph = value ?? true;
-                          // Reset the controller when toggling the graph
-                          _activityChartSeriesController = null;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-
-                
-                //Plot data if graph toggle is set to true
-                if (showActivityGraph)
-                  Container(
-                    height: chartHeight,
-                    child: SfCartesianChart(
-                      series: <LineSeries<LiveData, double>>[
-                        LineSeries<LiveData, double>(
-                          onRendererCreated: (ChartSeriesController controller) {
-                            _activityChartSeriesController = controller;
-                          },
-                          dataSource: activityChartData,
-                          xValueMapper: (LiveData data, _) => data.time,
-                          yValueMapper: (LiveData data, _) => data.activity,
-                        ),
-                      ],
-                      primaryXAxis: NumericAxis(
-                        majorGridLines: const MajorGridLines(width: 0),
-                        edgeLabelPlacement: EdgeLabelPlacement.shift,
-                        interval: 1, // Set the interval to 1 for whole numbers
-                      ),
-                      primaryYAxis: NumericAxis(
-                        axisLine: const AxisLine(width: 0),
-                        majorTickLines: const MajorTickLines(size: 0),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
+            if (showIRGraph)
+              _buildGraphContainer(chartHeight, _irChartSeriesController, irChartData, 'IR Count', showIRGraph),
+            if (showECGGraph)
+              _buildGraphContainer(chartHeight, _ecgChartSeriesController, ecgChartData, 'ECG', showECGGraph),
+            if (showActivityGraph)
+              _buildGraphContainer(chartHeight, _activityChartSeriesController, activityChartData, 'Activity', showActivityGraph),
+            if (showRedCountGraph)
+              _buildGraphContainer(chartHeight, _redCountSeriesController, redCountChartData, 'Red Count', showRedCountGraph),
           ],
         ),
       ),
-      // FloatingActionButton for cool looking play btn
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            if (isRecording) {
-              // Stop recording
-              _timer?.cancel();
-              isRecording = false;
-            } else {
-              // Start recording
-              _initializeData();
-              isRecording = true;
-            }
-          });
-        },
-        child: Icon(isRecording ? Icons.stop : Icons.play_arrow),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
-  }
+  }Widget _buildGraphContainer(
+  double chartHeight,
+  ChartSeriesController? controller,
+  List<LiveData> chartData,
+  String title,
+  bool visibility,
+) {
+  return Container(
+    height: chartHeight,
+    child: Stack(
+      children: [
+        SfCartesianChart(
+          series: <FastLineSeries<LiveData, double>>[
+            FastLineSeries<LiveData, double>(
+              onRendererCreated: (ChartSeriesController chartController) {
+                controller = chartController; 
+              },
+              dataSource: chartData,
+              xValueMapper: (LiveData data, _) => data.time,
+              yValueMapper: (LiveData data, _) {
+                // Adjust the mapping based on the graph title
+                if (title == 'Activity') {
+                  return data.activity.toDouble(); // Adjusted for binary activity
+                } else if (title == 'ECG') {
+                  return data.ecg.toDouble();
+                } else if (title == 'IR Count') {
+                  return data.irCount.toDouble();
+                } else if (title == 'Red Count') {
+                  return data.redCount.toDouble();
+                }
+                return 0.0; // Default case
+              },
+            )
+          ],
+          primaryXAxis: const NumericAxis(
+            majorGridLines: MajorGridLines(width: 0),
+            axisLine: AxisLine(width: 0),
+            labelStyle: TextStyle(color: Colors.transparent), // Hide labels
+            interval: 1,
+          ),
+          primaryYAxis: NumericAxis(
+            title: AxisTitle(text: title),
+            minimum: title == 'Activity' ? -1 : null, // Set minimum for Activity
+            maximum: title == 'Activity' ? 2 : null, // Set maximum for Activity
+          ),
+        ),
+        Positioned(
+          top: 5,
+          right: 5,
+          child: IconButton(
+            icon: Icon(visibility ? Icons.visibility : Icons.visibility_off),
+            onPressed: () {
+              setState(() {
+                // Toggle visibility based on the title of the graph
+                if (title == 'Activity') {
+                  showActivityGraph = !showActivityGraph;
+                } else if (title == 'ECG') {
+                  showECGGraph = !showECGGraph;
+                } else if (title == 'IR Count') {
+                  showIRGraph = !showIRGraph;
+                } else if (title == 'Red Count') {
+                  showRedCountGraph = !showRedCountGraph;
+                }
+              });
+            },
+          ),
+        ),
+      ],
+    ),
+  );
 }
-
-// Class for holding the data to be graphed - can add additional variables for display
-class LiveData {
-  final double time;
-  final int irCount;
-  final int ecg;
-  final int activity;
-  final int redCount;
-
-  LiveData(this.time, this.irCount, this.ecg, this.activity, this.redCount);
 }
