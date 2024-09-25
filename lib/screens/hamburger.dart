@@ -41,7 +41,7 @@ class HamburgerMenu extends StatelessWidget {
                   context); // Close the drawer and open the new context
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const HomeScreen()),
+                MaterialPageRoute(builder: (context) => HomeScreen()),
               );
             },
           ),
