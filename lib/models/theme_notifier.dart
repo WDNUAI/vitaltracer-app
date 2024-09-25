@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 ///Method for theme notifier extrpolated from  https://dev.to/kiani0x01/the-most-simple-and-easy-way-to-implement-light-theme-and-dark-theme-multiple-themes-in-your-flutter-app-248i
 class ThemeNotifier extends ChangeNotifier {
   bool _isDarkMode = false;

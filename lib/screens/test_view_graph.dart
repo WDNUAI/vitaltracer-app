@@ -1,8 +1,8 @@
- import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:fl_chart/fl_chart.dart' as fl;
 import 'dart:async';
-import 'parseCsv.dart';
+import 'ParseCSV.dart';
 
 //Methods inspired by example code for using syncfusion for live recording::https://github.com/SyncfusionExamples/how-to-create-a-real-time-flutter-chart-in-10-minutes/blob/main/lib/main.dart
 
@@ -17,8 +17,8 @@ class _TestViewGraphState extends State<TestViewGraph> {
   //define blank data sets to be used as a cache
   List<LiveData> irChartData = [];
   List<LiveData> ecgChartData = [];
-    List<LiveData> activityChartData = [];
-    List<LiveData> redCountChartData = [];
+  List<LiveData> activityChartData = [];
+  List<LiveData> redCountChartData = [];
   //define controller for each real time chart
   ChartSeriesController? _irChartSeriesController;
   ChartSeriesController? _ecgChartSeriesController;
@@ -34,12 +34,12 @@ class _TestViewGraphState extends State<TestViewGraph> {
   List<LiveData> _irStoredData = [];
   List<LiveData> _ecgStoredData = [];
   List<LiveData> _activityStoredData = [];
-    List<LiveData> _RedCountStoredData = [];
+  List<LiveData> _RedCountStoredData = [];
   int _currentIndex = 0;
   bool showIRGraph = true; // Toggle variable to control IR graph
   bool showECGGraph = true; // Toggle variable to control ECG graph
   bool showActivityGraph = true; // Toggle variable to control Activity graph
-bool showRedCountGraph = true; // Toggle variable to control red countgraph
+  bool showRedCountGraph = true; // Toggle variable to control red countgraph
 
   @override
   void initState() {
@@ -54,12 +54,18 @@ bool showRedCountGraph = true; // Toggle variable to control red countgraph
     List<fl.FlSpot> redCountSpots = await ParseCSV.getSpotsFromCSV(3);
 
     // store spots so we only need to parse one time - temp
-    _irStoredData = irSpots.map((spot) => LiveData(spot.x / xScaleFactor, spot.y.toInt(), 0, 0,0)).toList();
-    _ecgStoredData = ecgSpots.map((spot) => LiveData(spot.x / xScaleFactor, 0, spot.y.toInt(), 0,0)).toList();
-    _activityStoredData = activitySpots.map((spot) => LiveData(spot.x / xScaleFactor, 0, 0, spot.y.toInt(),0)).toList();
-    _RedCountStoredData = redCountSpots.map((spot) => LiveData(spot.x / xScaleFactor, 0, 0,0, spot.y.toInt())).toList();
-
-
+    _irStoredData = irSpots
+        .map((spot) => LiveData(spot.x / xScaleFactor, spot.y.toInt(), 0, 0, 0))
+        .toList();
+    _ecgStoredData = ecgSpots
+        .map((spot) => LiveData(spot.x / xScaleFactor, 0, spot.y.toInt(), 0, 0))
+        .toList();
+    _activityStoredData = activitySpots
+        .map((spot) => LiveData(spot.x / xScaleFactor, 0, 0, spot.y.toInt(), 0))
+        .toList();
+    _RedCountStoredData = redCountSpots
+        .map((spot) => LiveData(spot.x / xScaleFactor, 0, 0, 0, spot.y.toInt()))
+        .toList();
 
     _currentIndex = 0; // Reset index to start from the beginning
     _startDataUpdate(); // Start data updates
@@ -72,7 +78,7 @@ bool showRedCountGraph = true; // Toggle variable to control red countgraph
       if (!mounted) return; // Check if widget is still mounted
       if (_currentIndex < _irStoredData.length &&
           _currentIndex < _ecgStoredData.length &&
-                    _currentIndex < _RedCountStoredData.length &&
+          _currentIndex < _RedCountStoredData.length &&
           _currentIndex < _activityStoredData.length) {
         // Set state to new data points if we have not parsed entire list
         setState(() {
@@ -95,7 +101,8 @@ bool showRedCountGraph = true; // Toggle variable to control red countgraph
                 addedDataIndexes: List.generate(
                     pointsToAdd, (i) => irChartData.length - pointsToAdd + i),
                 removedDataIndexes: irChartData.length > maxDataPoints
-                    ? List.generate(irChartData.length - maxDataPoints, (i) => i)
+                    ? List.generate(
+                        irChartData.length - maxDataPoints, (i) => i)
                     : [],
               );
             }
@@ -115,29 +122,30 @@ bool showRedCountGraph = true; // Toggle variable to control red countgraph
                 addedDataIndexes: List.generate(
                     pointsToAdd, (i) => ecgChartData.length - pointsToAdd + i),
                 removedDataIndexes: ecgChartData.length > maxDataPoints
-                    ? List.generate(ecgChartData.length - maxDataPoints, (i) => i)
+                    ? List.generate(
+                        ecgChartData.length - maxDataPoints, (i) => i)
                     : [],
               );
             }
           }
 
-
-
-           // Add new points to redcount and remove oldest points if exceeds maxDataPoints
+          // Add new points to redcount and remove oldest points if exceeds maxDataPoints
           if (showRedCountGraph) {
             redCountChartData.addAll(_RedCountStoredData.getRange(
                 _currentIndex, _currentIndex + pointsToAdd));
             if (redCountChartData.length > maxDataPoints) {
-              redCountChartData.removeRange(0, redCountChartData.length - maxDataPoints);
+              redCountChartData.removeRange(
+                  0, redCountChartData.length - maxDataPoints);
             }
 
             // Update the red couint
             if (_RedCountSeriesController != null) {
               _RedCountSeriesController!.updateDataSource(
-                addedDataIndexes: List.generate(
-                    pointsToAdd, (i) => redCountChartData.length - pointsToAdd + i),
+                addedDataIndexes: List.generate(pointsToAdd,
+                    (i) => redCountChartData.length - pointsToAdd + i),
                 removedDataIndexes: redCountChartData.length > maxDataPoints
-                    ? List.generate(redCountChartData.length - maxDataPoints, (i) => i)
+                    ? List.generate(
+                        redCountChartData.length - maxDataPoints, (i) => i)
                     : [],
               );
             }
@@ -145,17 +153,21 @@ bool showRedCountGraph = true; // Toggle variable to control red countgraph
 
           // Add new points to activityChartData and remove oldest points if exceeds maxDataPoints
           if (showActivityGraph) {
-            activityChartData.addAll(_activityStoredData.getRange(_currentIndex, _currentIndex + pointsToAdd));
+            activityChartData.addAll(_activityStoredData.getRange(
+                _currentIndex, _currentIndex + pointsToAdd));
             if (activityChartData.length > maxDataPoints) {
-              activityChartData.removeRange(0, activityChartData.length - maxDataPoints);
+              activityChartData.removeRange(
+                  0, activityChartData.length - maxDataPoints);
             }
 
             // Update the Activity chart
             if (_activityChartSeriesController != null) {
               _activityChartSeriesController!.updateDataSource(
-                addedDataIndexes: List.generate(pointsToAdd, (i) => activityChartData.length - pointsToAdd + i),
+                addedDataIndexes: List.generate(pointsToAdd,
+                    (i) => activityChartData.length - pointsToAdd + i),
                 removedDataIndexes: activityChartData.length > maxDataPoints
-                    ? List.generate(activityChartData.length - maxDataPoints, (i) => i)
+                    ? List.generate(
+                        activityChartData.length - maxDataPoints, (i) => i)
                     : [],
               );
             }
@@ -186,8 +198,11 @@ bool showRedCountGraph = true; // Toggle variable to control red countgraph
 //Widget to Pop out and give user option to toggle graphs and style
   @override
   Widget build(BuildContext context) {
-    // Calculate the height by getting number of grpahs visible, scale size if more charts visible. 
-    int visibleGraphs = (showIRGraph ? 1 : 0) + (showECGGraph ? 1 : 0) + (showRedCountGraph ? 1 : 0) + (showActivityGraph ? 1 : 0);
+    // Calculate the height by getting number of grpahs visible, scale size if more charts visible.
+    int visibleGraphs = (showIRGraph ? 1 : 0) +
+        (showECGGraph ? 1 : 0) +
+        (showRedCountGraph ? 1 : 0) +
+        (showActivityGraph ? 1 : 0);
     double chartHeight = 600 / (visibleGraphs > 0 ? visibleGraphs : 1);
 
     return Scaffold(
@@ -201,7 +216,6 @@ bool showRedCountGraph = true; // Toggle variable to control red countgraph
             // Live stream section for recordings
             Column(
               children: [
-            
                 const SizedBox(height: 16),
                 const SizedBox(height: 16),
                 // Checkbox to toggle IR graph
@@ -229,7 +243,8 @@ bool showRedCountGraph = true; // Toggle variable to control red countgraph
                     child: SfCartesianChart(
                       series: <LineSeries<LiveData, double>>[
                         LineSeries<LiveData, double>(
-                          onRendererCreated: (ChartSeriesController controller) {
+                          onRendererCreated:
+                              (ChartSeriesController controller) {
                             _irChartSeriesController = controller;
                           },
                           dataSource: irChartData,
@@ -267,7 +282,6 @@ bool showRedCountGraph = true; // Toggle variable to control red countgraph
                   ],
                 ),
 
-
                 //Plot data if graph toggle is set to true
                 if (showECGGraph)
                   Container(
@@ -275,7 +289,8 @@ bool showRedCountGraph = true; // Toggle variable to control red countgraph
                     child: SfCartesianChart(
                       series: <LineSeries<LiveData, double>>[
                         LineSeries<LiveData, double>(
-                          onRendererCreated: (ChartSeriesController controller) {
+                          onRendererCreated:
+                              (ChartSeriesController controller) {
                             _ecgChartSeriesController = controller;
                           },
                           dataSource: ecgChartData,
@@ -289,17 +304,14 @@ bool showRedCountGraph = true; // Toggle variable to control red countgraph
                         interval: 1, // Set the interval to 1 for whole numbers
                       ),
                       primaryYAxis: NumericAxis(
-
                         axisLine: const AxisLine(width: 0),
                         majorTickLines: const MajorTickLines(size: 0),
-                        
                       ),
                     ),
                   ),
 
-
-                  //Checkbox logic
-                  Row(
+                //Checkbox logic
+                Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text('Show Red Counts'),
@@ -316,15 +328,15 @@ bool showRedCountGraph = true; // Toggle variable to control red countgraph
                   ],
                 ),
 
-                
                 //Plot data if graph toggle is set to true
-                  if (showRedCountGraph)   // Show red coount graph
+                if (showRedCountGraph) // Show red coount graph
                   Container(
                     height: chartHeight,
                     child: SfCartesianChart(
                       series: <LineSeries<LiveData, double>>[
                         LineSeries<LiveData, double>(
-                          onRendererCreated: (ChartSeriesController controller) {
+                          onRendererCreated:
+                              (ChartSeriesController controller) {
                             _RedCountSeriesController = controller;
                           },
                           dataSource: redCountChartData,
@@ -344,8 +356,6 @@ bool showRedCountGraph = true; // Toggle variable to control red countgraph
                     ),
                   ),
 
-
-                  
                 const SizedBox(height: 16),
                 // Checkbox to toggle Activity graph
                 Row(
@@ -365,7 +375,6 @@ bool showRedCountGraph = true; // Toggle variable to control red countgraph
                   ],
                 ),
 
-                
                 //Plot data if graph toggle is set to true
                 if (showActivityGraph)
                   Container(
@@ -373,7 +382,8 @@ bool showRedCountGraph = true; // Toggle variable to control red countgraph
                     child: SfCartesianChart(
                       series: <LineSeries<LiveData, double>>[
                         LineSeries<LiveData, double>(
-                          onRendererCreated: (ChartSeriesController controller) {
+                          onRendererCreated:
+                              (ChartSeriesController controller) {
                             _activityChartSeriesController = controller;
                           },
                           dataSource: activityChartData,

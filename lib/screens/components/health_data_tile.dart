@@ -22,7 +22,7 @@ class HealthDataTile extends StatelessWidget {
   double margin = 16.0;
   double activityPadding = 16.0;
   /// Constructor for the HealthDataTile
-  /// 
+  ///
   /// [label]: The title or name of the health data
   /// [value]: The current value or status of the health data
   /// [imagePath]: Path to the icon or image representing the data
@@ -143,7 +143,6 @@ class HealthDataTile extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-               
                 SizedBox(height: 8.h),
                 // Button to choose a device
                 chooseDeviceButton,
