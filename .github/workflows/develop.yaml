@@ -5,8 +5,10 @@ on:
       - feature/actions-workflow
 jobs:
   build-and-distribute:
-    name: Build and Distribute
+    name: Build and Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
