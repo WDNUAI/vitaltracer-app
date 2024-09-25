@@ -228,7 +228,7 @@ class _BluetoothConnectionsScreenState
   }
 
   /// Returns a Card representing a discovered vitaltracer device.
-/// Uses the [titleText] and [subHeading] to build the card.
+  /// Uses the [titleText] and [subHeading] to build the card.
   Widget deviceCard(String titleText, String subHeading, BuildContext context,
       BluetoothDevice device) {
     return Card(
@@ -259,5 +259,3 @@ class _BluetoothConnectionsScreenState
     );
   }
 }
-
-

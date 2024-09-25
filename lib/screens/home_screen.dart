@@ -9,25 +9,39 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'ecg_test_graph.dart';
 import 'settings.dart';
 
+int appBarFontSize = 0;
+bool _isTablet = false;
 
 /// Main HomeScreen widget that sets up the app's structure
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  HomeScreen({super.key});
+
+
 
   @override
   Widget build(BuildContext context) {
+    if (MediaQuery.of(context).size.shortestSide > 600 && MediaQuery.of(context).orientation == Orientation.landscape) {
+      _isTablet = true;
+      appBarFontSize = 7;
+    } else {
+      _isTablet = false;
+      appBarFontSize = 15;
+    }
     return Scaffold(
       // App bar configuration
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Health Overview'),
+            Row( children: [
+            Text('Health Overview, ',
+          style: TextStyle(fontSize: appBarFontSize.w, fontWeight: FontWeight.normal) ),
             // Display current date
             Text(
               DateTime.now().toString().split(' ')[0],
-              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.normal),
+              style: TextStyle(fontSize: appBarFontSize.w, fontWeight: FontWeight.normal),
             ),
+            ],)
           ],
         ),
         // Hamburger menu in the leading position
@@ -112,6 +126,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
   @override
   void initState() {
     super.initState();
+
     // Add scroll listener to handle scroll indicator visibility
     _scrollController.addListener(_scrollListener);
   }
@@ -125,16 +140,18 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
     super.dispose();
   }
 
-void _startTimer() {
+  void _startTimer() {
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       setState(() {
         _currentTemperature = VTBluetoothService.currentTemperature;
       });
     });
   }
+
   // Listener for scroll events to show/hide scroll indicator
   void _scrollListener() {
-    if (_scrollController.offset >= _scrollController.position.maxScrollExtent &&
+    if (_scrollController.offset >=
+            _scrollController.position.maxScrollExtent &&
         !_scrollController.position.outOfRange) {
       setState(() {
         _showScrollIndicator = false;
@@ -148,6 +165,15 @@ void _startTimer() {
 
   @override
   Widget build(BuildContext context) {
+    if (_isTablet) {
+      return tabletContent();
+    } else {
+      return phoneContent();
+    }
+
+  }
+
+  Stack phoneContent() {
     return Stack(
       children: [
         // Main scrollable content
@@ -166,6 +192,7 @@ void _startTimer() {
                   onTap: () {},
                   color: Colors.white,
                   isTopTile: true,
+                  isTablet: _isTablet,
                 ),
                 Padding(
                   padding: EdgeInsets.all(16.0.w),
@@ -186,11 +213,13 @@ void _startTimer() {
                             label: 'Heart Rate',
                             value: '72 BPM',
                             imagePath: 'lib/images/heart.webp',
+                            isTablet: _isTablet,
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => const DetailedViewScreen()),
+                                    builder: (context) =>
+                                        const DetailedViewScreen()),
                               );
                             },
                             color: tileBgColor,
@@ -200,6 +229,7 @@ void _startTimer() {
                             label: 'ECG',
                             value: 'Normal',
                             imagePath: 'lib/images/ecg.webp',
+                            isTablet: _isTablet,
                             onTap: () {
                               Navigator.push(
                                 context,
@@ -215,11 +245,13 @@ void _startTimer() {
                       // Body Temperature tile
                       HealthDataTile(
                         label: 'Body Temperature',
-                        value:  '${_currentTemperature?.toStringAsFixed(1) ?? "N/A"} °C',
+                        value:
+                            '${_currentTemperature?.toStringAsFixed(1) ?? "N/A"} °C',
                         imagePath: 'lib/images/temp.webp',
                         onTap: () {},
                         color: tileBgColor,
                         isTemperature: true,
+                        isTablet: _isTablet,
                       ),
                       SizedBox(height: 16.h),
                       // Another grid of health data tiles
@@ -236,11 +268,13 @@ void _startTimer() {
                             label: 'Steps',
                             value: '10,000 steps',
                             imagePath: 'lib/images/activity.webp',
+                            isTablet: _isTablet,
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => const DetailedViewScreen()),
+                                    builder: (context) =>
+                                        const DetailedViewScreen()),
                               );
                             },
                             color: tileBgColor,
@@ -250,11 +284,13 @@ void _startTimer() {
                             label: 'SPO2',
                             value: '92%',
                             imagePath: 'lib/images/O2.webp',
+                            isTablet: _isTablet,
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => const DetailedViewScreen()),
+                                    builder: (context) =>
+                                        const DetailedViewScreen()),
                               );
                             },
                             color: tileBgColor,
@@ -265,7 +301,8 @@ void _startTimer() {
                       // Activity section
                       Text(
                         'Activity',
-                        style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 18.sp, fontWeight: FontWeight.bold),
                       ),
                       SizedBox(height: 8.h),
                       // Horizontal scrollable list of activity tiles
@@ -281,6 +318,7 @@ void _startTimer() {
                               onTap: () {},
                               color: Colors.grey[200]!,
                               isActivity: true,
+                              isTablet: _isTablet,
                             ),
                             // Walking activity tile
                             HealthDataTile(
@@ -290,6 +328,7 @@ void _startTimer() {
                               onTap: () {},
                               color: Colors.grey[200]!,
                               isActivity: true,
+                              isTablet: _isTablet,
                             ),
                             HealthDataTile(
                               label: 'Sleeping',
@@ -298,10 +337,201 @@ void _startTimer() {
                               onTap: () {},
                               color: Colors.grey[200]!,
                               isActivity: true,
+                              isTablet: _isTablet,
                             ),
                           ],
                         ),
                       ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        // Scroll indicator at the bottom of the screen
+        if (_showScrollIndicator)
+          Positioned(
+            bottom: 16,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Stack tabletContent() {
+    return Stack(
+      children: [
+        // Main scrollable content
+        ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top tile with device information
+                HealthDataTile(
+                  label: 'Top Tile',
+                  value: '',
+                  imagePath: 'lib/images/vt1.png',
+                  onTap: () {},
+                  color: Colors.white,
+                  isTopTile: true,
+                  isTablet: _isTablet,
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 16.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Grid of health data tiles
+                      GridView.count(
+                        shrinkWrap: true,
+                        crossAxisCount: 5,
+                        crossAxisSpacing: 2.0.w,
+                        mainAxisSpacing: 10.0.h,
+                        childAspectRatio: 0.9,
+                        physics: const NeverScrollableScrollPhysics(),
+                        children: [
+                          // Heart Rate tile
+                          HealthDataTile(
+                            label: 'Heart Rate',
+                            value: '72 BPM',
+                            imagePath: 'lib/images/heart.webp',
+                            isTablet: _isTablet,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const DetailedViewScreen()),
+                              );
+                            },
+                            color: tileBgColor,
+                          ),
+                          // ECG tile
+                          HealthDataTile(
+                            label: 'ECG',
+                            value: 'Normal',
+                            imagePath: 'lib/images/ecg.webp',
+                            isTablet: _isTablet,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const ViewGraph()),
+                              );
+                            },
+                            color: tileBgColor,
+                          ),
+                          HealthDataTile(
+                            label: 'Body Temperature',
+                            value:  '${_currentTemperature?.toStringAsFixed(1) ?? "N/A"} °C',
+                            imagePath: 'lib/images/temp.webp',
+                            onTap: () {},
+                            color: tileBgColor,
+                            isTablet: _isTablet,
+                          ),
+                          // Steps tile
+                          HealthDataTile(
+                            label: 'Steps',
+                            value: '10,000 steps',
+                            imagePath: 'lib/images/activity.webp',
+                            isTablet: _isTablet,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const DetailedViewScreen()),
+                              );
+                            },
+                            color: tileBgColor,
+                          ),
+                          // SPO2 tile
+                          HealthDataTile(
+                            label: 'SPO2',
+                            value: '92%',
+                            imagePath: 'lib/images/O2.webp',
+                            isTablet: _isTablet,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const DetailedViewScreen()),
+                              );
+                            },
+                            color: tileBgColor,
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 16.h),
+                      SizedBox(height: 16.h),
+                      // Activity section
+                      Text(
+                        'Activity',
+                        style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.bold),
+                      ),
+                      // Another grid of health data tiles
+                      GridView.count(
+                        shrinkWrap: true,
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 5.0.w,
+                        mainAxisSpacing: 16.0.h,
+                        childAspectRatio: 2.3,
+                        physics: const NeverScrollableScrollPhysics(),
+                        children: [
+                              // Sitting activity tile
+                              HealthDataTile(
+                                label: 'Sitting',
+                                value: '2 hours',
+                                imagePath: '',
+                                onTap: () {},
+                                color: Colors.grey[200]!,
+                                isActivity: true,
+                                isTablet: _isTablet,
+                              ),
+                              // Walking activity tile
+                              HealthDataTile(
+                                label: 'Walking',
+                                value: '6 hours',
+                                imagePath: '',
+                                onTap: () {},
+                                color: Colors.grey[200]!,
+                                isActivity: true,
+                                isTablet: _isTablet,
+                              ),
+                              HealthDataTile(
+                                label: 'Sleeping',
+                                value: '8 hours',
+                                imagePath: '',
+                                onTap: () {},
+                                color: Colors.grey[200]!,
+                                isActivity: true,
+                                isTablet: _isTablet,
+                              ),
+                            ],
+
+
+                      ),
+                      SizedBox(height: 16.h),
+                      // Activity section
+
+                      SizedBox(height: 8.h),
+                      // Horizontal scrollable list of activity tiles
+
+
+
                     ],
                   ),
                 ),

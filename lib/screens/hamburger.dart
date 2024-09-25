@@ -9,6 +9,7 @@ import 'auth_service.dart';
 import 'sign_in_screen.dart';
 import 'recorded_data_screen.dart';
 import 'ecg_test_graph.dart';
+
 class HamburgerMenu extends StatelessWidget {
   final VoidCallback onPressed;
   final AuthService _auth;
@@ -40,7 +41,7 @@ class HamburgerMenu extends StatelessWidget {
                   context); // Close the drawer and open the new context
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const HomeScreen()),
+                MaterialPageRoute(builder: (context) => HomeScreen()),
               );
             },
           ),
@@ -74,7 +75,7 @@ class HamburgerMenu extends StatelessWidget {
             },
           ),
           //Set Title of Button
- ListTile(
+          ListTile(
             title: const Text('Ble Connections'),
             onTap: () {
               // Connections Tap
@@ -107,14 +108,13 @@ class HamburgerMenu extends StatelessWidget {
                       builder: (context) => const TestViewGraph()),
                 );
               }),
-                 ListTile(
+          ListTile(
               title: const Text('Record with ESP32'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => const ViewGraph()),
+                  MaterialPageRoute(builder: (context) => const ViewGraph()),
                 );
               }),
           ListTile(

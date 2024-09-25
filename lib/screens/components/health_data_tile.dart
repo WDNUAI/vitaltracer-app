@@ -13,9 +13,16 @@ class HealthDataTile extends StatelessWidget {
   final bool isTemperature;
   final bool isTopTile;
   final bool isActivity;
+  final bool isTablet;
 
+  // SIZE CONSTANTS
+  double imageSize = 50;
+  double titleText = 16;
+  double subtitleText = 14;
+  double margin = 16.0;
+  double activityPadding = 16.0;
   /// Constructor for the HealthDataTile
-  /// 
+  ///
   /// [label]: The title or name of the health data
   /// [value]: The current value or status of the health data
   /// [imagePath]: Path to the icon or image representing the data
@@ -24,13 +31,14 @@ class HealthDataTile extends StatelessWidget {
   /// [isTemperature]: Flag to indicate if this is a temperature tile
   /// [isTopTile]: Flag to indicate if this is the top device info tile
   /// [isActivity]: Flag to indicate if this is an activity tile
-  const HealthDataTile({
+  HealthDataTile({
     Key? key,
     required this.label,
     required this.value,
     required this.imagePath,
     required this.onTap,
     required this.color,
+    required this.isTablet,
     this.isTemperature = false,
     this.isTopTile = false,
     this.isActivity = false,
@@ -38,6 +46,13 @@ class HealthDataTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (isTablet) {
+      imageSize *= 1.50;
+      titleText *= .50;
+      subtitleText *= .50;
+      margin = 16;
+      activityPadding /= 2;
+    }
     // Determine which type of tile to build based on the flags
     if (isTopTile) {
       return _buildTopTile(context);
@@ -52,8 +67,62 @@ class HealthDataTile extends StatelessWidget {
 
   /// Builds the top tile containing device information and selection
   Widget _buildTopTile(BuildContext context) {
+    double paddingHori = 16.0;
+    double paddingVert = 16.0;
+    RotatedBox vtImage = RotatedBox(
+        quarterTurns: 0,
+        child: Image.asset(
+      imagePath,
+      height: 80.h,
+      fit: BoxFit.contain,
+      )
+    );
+    ElevatedButton chooseDeviceButton =  ElevatedButton(
+      style: ElevatedButton.styleFrom(
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(32.0)),
+      minimumSize: const Size(140, 45), //////// HERE
+      ),
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => const BluetoothConnectionsScreen()),
+        );
+      },
+      child: Text('Choose Device'),
+
+    );
+
+
+    if (isTablet) {
+      vtImage = RotatedBox(
+        quarterTurns: 3,
+        child: Image.asset(
+          imagePath,
+          height: 200.h,
+          fit: BoxFit.contain,
+        )
+      );
+      ElevatedButton chooseDeviceButton =  ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(32.0)),
+          minimumSize: const Size(200, 75), //////// HERE
+        ),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const BluetoothConnectionsScreen()),
+          );
+        },
+        child: Text('Choose Device'),
+
+      );
+    }
     return Container(
-      margin: EdgeInsets.all(16.0.w),
+      margin: EdgeInsets.symmetric(vertical: paddingVert.h, horizontal: paddingHori.w),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15.r),
@@ -67,40 +136,27 @@ class HealthDataTile extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: EdgeInsets.all(16.0.w),
+        padding: EdgeInsets.all(8.0.w),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-               
                 SizedBox(height: 8.h),
                 // Button to choose a device
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const BluetoothConnectionsScreen()),
-                    );
-                  },
-                  child: Text('Choose Device'),
-                ),
+                chooseDeviceButton,
                 SizedBox(height: 8.h),
                 // Help text
                 Text(
                   'Having trouble? View help',
-                  style: TextStyle(fontSize: 14.sp, color: Colors.blue),
+                  style: TextStyle(fontSize: subtitleText.sp, color: Colors.blue),
                 ),
               ],
             ),
             // Device image
-            Image.asset(
-              imagePath,
-              height: 80.h,
-              fit: BoxFit.contain,
-            ),
+
+            vtImage,
           ],
         ),
       ),
@@ -122,21 +178,21 @@ class HealthDataTile extends StatelessWidget {
             // Health data icon
             Image.asset(
               imagePath,
-              height: 50.h,
-              width: 50.w,
+              height: imageSize.h,
+              width: imageSize.w,
               fit: BoxFit.contain,
             ),
             SizedBox(height: 8.h),
             // Health data label
             Text(
               label,
-              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: titleText.sp, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 4.h),
             // Health data value
             Text(
               value,
-              style: TextStyle(fontSize: 14.sp),
+              style: TextStyle(fontSize: subtitleText.sp),
             ),
           ],
         ),
@@ -154,14 +210,14 @@ class HealthDataTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(15.r),
       ),
       child: Padding(
-        padding: EdgeInsets.all(16.w),
+        padding: EdgeInsets.all(titleText.w),
         child: Row(
           children: [
             // Temperature icon
             Image.asset(
               imagePath,
-              height: 50.h,
-              width: 50.w,
+              height: imageSize.h,
+              width: imageSize.w,
               fit: BoxFit.contain,
             ),
             SizedBox(width: 16.w),
@@ -172,13 +228,13 @@ class HealthDataTile extends StatelessWidget {
                 // Temperature label
                 Text(
                   label,
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: titleText.sp, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 4.h),
                 // Temperature value
                 Text(
                   value,
-                  style: TextStyle(fontSize: 14.sp),
+                  style: TextStyle(fontSize: subtitleText.sp),
                 ),
               ],
             ),
@@ -193,7 +249,7 @@ class HealthDataTile extends StatelessWidget {
     return Container(
       width: 150.w,
       margin: EdgeInsets.only(right: 16.w),
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(activityPadding.w),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15.r),
@@ -203,10 +259,10 @@ class HealthDataTile extends StatelessWidget {
         children: [
           // Activity name
           Text(label,
-              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)),
+              style: TextStyle(fontSize: titleText.sp, fontWeight: FontWeight.bold)),
           SizedBox(height: 8.h),
           // Activity duration
-          Text(value, style: TextStyle(fontSize: 14.sp)),
+          Text(value, style: TextStyle(fontSize: subtitleText.sp)),
         ],
       ),
     );
