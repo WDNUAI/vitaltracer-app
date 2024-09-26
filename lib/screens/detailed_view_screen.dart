@@ -24,7 +24,8 @@ class DetailedViewScreen extends StatelessWidget {
           ),
 
           //Add Image - needs to be removed in future
-          const SizedBox(height: 16), // Add space between the title and the image
+          const SizedBox(
+              height: 16), // Add space between the title and the image
           //Place Image in center of scrren
           Center(
             child: Image.asset('lib/images/ECGData.png'),

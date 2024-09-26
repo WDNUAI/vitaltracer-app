@@ -4,12 +4,20 @@ import 'package:provider/provider.dart';
 import 'package:vitaltracer_app/models/theme_notifier.dart';
 import 'detailed_view_screen.dart';
 import 'ble-connections-screen.dart';
+import 'configure_patch.dart';
 
 class Settings extends StatelessWidget {
   const Settings({super.key});
 
   @override
   Widget build(BuildContext context) {
+
+    SettingsThemeData settingsTheme = SettingsThemeData(
+        settingsListBackground : const Color(0xFFFFFF),
+        dividerColor: const Color(0x000E5B),
+
+    );
+
     // Get the themeNotifier from Provider
     final themeNotifier = Provider.of<ThemeNotifier>(context);
 
@@ -73,12 +81,26 @@ class Settings extends StatelessWidget {
                   // Handle navigation to Input Data Page
                 },
               ),
+              SettingsTile.navigation(
+                //Can Modify icons for btn below
+                leading: const Icon(Icons.watch_sharp),
+                title: const Text('Manage your patch'),
+                onPressed: (BuildContext context) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                        const ConfigurePatch()),
+                  );
+                },
+              ),
               //Dark Mode Toggle
               SettingsTile.switchTile(
                 onToggle: (bool value) {
                   themeNotifier.toggleTheme(value);
                 },
-                initialValue: themeNotifier.isDarkMode, // Get initial value from themeNotifier
+                initialValue: themeNotifier
+                    .isDarkMode, // Get initial value from themeNotifier
                 leading: Icon(Icons.dark_mode),
                 title: Text('Dark Mode'),
               ),
