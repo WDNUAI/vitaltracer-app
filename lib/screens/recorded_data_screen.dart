@@ -199,7 +199,7 @@ void _loadRecordings() {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => DetailedViewScreen(recording: recording),
+                        builder: (context) => const PreviousSessionsGraph(),
                       ),
                     );
                   },
