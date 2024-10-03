@@ -1,16 +1,68 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:vitaltracer_app/screens/recorded_data_screen.dart';
 import '../services/bluetooth_service.dart';
 
 class LiveData {
-  final double time; // Time in seconds
+  late final double time; // Time in seconds
   final int ecg; // ECG value
   final int irCount; // IR count value
   final int activity; // Activity value
   final int redCount; // Red count value
+  final DateTime recordingDate; 
+  LiveData(this.time, this.ecg, this.irCount, this.activity, this.redCount, this.recordingDate);
+}
 
-  LiveData(this.time, this.ecg, this.irCount, this.activity, this.redCount);
+// RecordingStore class to save session-based data - persist the recording data when not on recording screen - accessed byt recorded_data_screen.dart
+class RecordingStore {
+  static final RecordingStore _instance = RecordingStore._internal();
+  factory RecordingStore() => _instance;
+
+  // Store lists of recorded data
+  List<List<LiveData>> _ecgRecordings = [];
+  List<List<LiveData>> _irRecordings = [];
+  List<List<LiveData>> _activityRecordings = [];
+  List<List<LiveData>> _redCountRecordings = [];
+
+  // Singleton pattern to access the same instance
+  RecordingStore._internal();
+
+  // Add a field to store the recording date
+List<DateTime> _recordingDates = [];
+
+//Metod to save recording and tag datetime
+void saveRecording({
+  required List<LiveData> ecgData,
+  required List<LiveData> irData,
+  required List<LiveData> activityData,
+  required List<LiveData> redCountData,
+  required DateTime recordingDate,
+}) {
+  _ecgRecordings.add(List.from(ecgData));
+  _irRecordings.add(List.from(irData));
+  _activityRecordings.add(List.from(activityData));
+  _redCountRecordings.add(List.from(redCountData));
+  _recordingDates.add(recordingDate);  // Add the recording date
+}
+
+// Method to retrieve recording dates - Not used as its passed in LIVE data- this way may be more efficient as it only passes one date
+List<DateTime> getRecordingDates() => _recordingDates;
+
+
+  // Retrieve all recordings for purpose of saving them to be used in Recorded_data_screen.dart
+  List<List<LiveData>> getAllECGRecordings() => _ecgRecordings;
+  List<List<LiveData>> getAllIRRecordings() => _irRecordings;
+  List<List<LiveData>> getAllActivityRecordings() => _activityRecordings;
+  List<List<LiveData>> getAllRedCountRecordings() => _redCountRecordings;
+
+  // Clear all recordings (if needed)
+  void clearRecordings() {
+    _ecgRecordings.clear();
+    _irRecordings.clear();
+    _activityRecordings.clear();
+    _redCountRecordings.clear();
+  }
 }
 
 class TestViewGraph extends StatefulWidget {
@@ -20,12 +72,10 @@ class TestViewGraph extends StatefulWidget {
 }
 
 class _ViewGraphState extends State<TestViewGraph> {
-  //init live data chart variables
   List<LiveData> ecgChartData = [];
   List<LiveData> irChartData = [];
   List<LiveData> activityChartData = [];
   List<LiveData> redCountChartData = [];
-//init controllers for each chart
   ChartSeriesController? _ecgChartSeriesController;
   ChartSeriesController? _irChartSeriesController;
   ChartSeriesController? _activityChartSeriesController;
@@ -43,6 +93,8 @@ class _ViewGraphState extends State<TestViewGraph> {
   late StreamSubscription<List<int>> activitySubscription;
   late StreamSubscription<double> temperatureSubscription;
   Timer? _chartUpdateTimer;
+  //Adjust in future to whatever the default time is for patch
+  int recordingDuration = 30;
 
   @override
   void initState() {
@@ -62,7 +114,6 @@ class _ViewGraphState extends State<TestViewGraph> {
   }
 
   void _initializeData() {
-    //init bluetooth services for ecg and activty data - when we figure out how the data looks from Parse the Stream
     ecgSubscription = VTBluetoothService.ecgStream.listen((ecgData) {
       if (mounted) {
         _addDataInBatch(ecgData, 'ECG');
@@ -81,6 +132,7 @@ class _ViewGraphState extends State<TestViewGraph> {
   int lastActivityValue = 0; // Start with 0 as the default value
   void _addDataInBatch(List<int> data, String source) {
     final currentTime = DateTime.now().millisecondsSinceEpoch / 1000.0;
+    DateTime now = DateTime.now();
     int batchSize = 275; // Adjust the batch size to plot more points
 
     for (int i = 0; i < data.length && i < batchSize * 4; i += 4) {
@@ -88,19 +140,19 @@ class _ViewGraphState extends State<TestViewGraph> {
 
       if (source == 'ECG') {
         int ecgValue = (data[i + 1] << 8) | data[i];
-        ecgChartData.add(LiveData(time, ecgValue, 0, 0, 0));
+        ecgChartData.add(LiveData(time, ecgValue, 0, 0, 0,now));
       } else if (source == 'IR') {
         int irValue = (data[i + 1] << 8) | data[i];
-        irChartData.add(LiveData(time, 0, irValue, 0, 0));
+        irChartData.add(LiveData(time, 0, irValue, 0, 0,now));
       } else if (source == 'Activity') {
         int activityValue = (data[i + 1] << 8) | data[i];
         activityValue = activityValue > 0
             ? 1
             : 0; // Binary transformation - values can only be 1 or zero
-        activityChartData.add(LiveData(time, 0, 0, activityValue, 0));
+        activityChartData.add(LiveData(time, 0, 0, activityValue, 0,now));
       } else if (source == 'RedCount') {
         int redCountValue = (data[i + 1] << 8) | data[i];
-        redCountChartData.add(LiveData(time, 0, 0, 0, redCountValue));
+        redCountChartData.add(LiveData(time, 0, 0, 0, redCountValue,now));
       }
     }
   }
@@ -118,7 +170,6 @@ class _ViewGraphState extends State<TestViewGraph> {
     redCountChartData.removeWhere(
         (data) => currentTime - startTime - data.time > 4 * zoomFactor);
 
-    // Update the chart's data source
     _ecgChartSeriesController?.updateDataSource(
       addedDataIndexes: List.generate(ecgChartData.length, (index) => index),
     );
@@ -130,9 +181,31 @@ class _ViewGraphState extends State<TestViewGraph> {
           List.generate(activityChartData.length, (index) => index),
     );
     _redCountSeriesController?.updateDataSource(
-      addedDataIndexes:
-          List.generate(redCountChartData.length, (index) => index),
+      addedDataIndexes: List.generate(redCountChartData.length, (index) => index),
     );
+  }
+
+  // Stop the recording and save data to the RecordingStore
+  void _stopRecording() {
+    //Adjjust for bluetooth classic  - will not have multiple streams but will need to cancel stream/stop
+    ecgSubscription.cancel();
+    activitySubscription.cancel();
+
+    // Save data to RecordingStore
+    RecordingStore().saveRecording(
+      ecgData: ecgChartData,
+      irData: irChartData,
+      activityData: activityChartData,
+      redCountData: redCountChartData,
+      //Send The current Data
+      recordingDate: DateTime.now()
+    );
+//When save button is pushed, change context to RecordedData Screen to create widget
+     Navigator.push(
+    context,
+    //in future could pass the date thru here, however storing in RecordStore allows for persistence of the data so long as app is running
+    MaterialPageRoute(builder: (context) => RecordedDataScreen()), // Navigate to RecordedDataScreen
+  );
   }
 
   @override
@@ -141,7 +214,6 @@ class _ViewGraphState extends State<TestViewGraph> {
     _chartUpdateTimer?.cancel();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     //calculate amount of room on screen given the visibility of each graph
@@ -155,68 +227,67 @@ class _ViewGraphState extends State<TestViewGraph> {
     double chartHeight =
         visibleGraphs > 0 ? availableHeight / visibleGraphs : availableHeight;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Recording'),
-        actions: [
-          IconButton(
-            icon: Icon(zoomFactor == 1.0 ? Icons.zoom_out : Icons.zoom_in),
-            onPressed: () {
-              setState(() {
-                zoomFactor =
-                    (zoomFactor == 1.0) ? 2.0 : 1.0; // Toggle zoom factor
-              });
-            },
-          ),
-          Container(
-            margin: const EdgeInsets.only(right: 16),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              ),
-              onPressed: () {
-                setState(() {
-                  showIRGraph = true;
-                  showECGGraph = true;
-                  showRedCountGraph = true;
-                  showActivityGraph = true;
-                });
-              },
-              child: const Text(
-                'Show All',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ),
+  return Scaffold(
+    appBar: AppBar(
+      actions: [
+        //Add settings icon to adjust recording lenghts
+        IconButton(
+          icon: const Icon(Icons.settings),
+          onPressed: _showSettingsMenu,
+        ),
+        IconButton(
+          icon: Icon(zoomFactor == 1.0 ? Icons.zoom_out : Icons.zoom_in),
+          onPressed: () {
+            setState(() {
+              zoomFactor = (zoomFactor == 1.0) ? 2.0 : 1.0;
+            });
+          },
+        ),
+        IconButton(
+          icon: const Text('Show All'),
+          onPressed: () {
+            setState(() {
+              showIRGraph = true;
+              showECGGraph = true;
+              showActivityGraph = true;
+              showRedCountGraph = true;
+                  
+            });
+          },
+        ),
+      ],
+    ),
+    body: SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          if (showIRGraph)
+            _buildGraphContainer(chartHeight, _irChartSeriesController, irChartData, 'IR Count', showIRGraph),
+          if (showECGGraph)
+            _buildGraphContainer(chartHeight, _ecgChartSeriesController, ecgChartData, 'ECG', showECGGraph),
+          if (showActivityGraph)
+            _buildGraphContainer(chartHeight, _activityChartSeriesController, activityChartData, 'Activity', showActivityGraph),
+          if (showRedCountGraph)
+            _buildGraphContainer(chartHeight, _redCountSeriesController, redCountChartData, 'Red Count', showRedCountGraph),
         ],
       ),
-//Build chart containers
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            if (showIRGraph)
-              _buildGraphContainer(chartHeight, _irChartSeriesController,
-                  irChartData, 'IR Count', showIRGraph),
-            if (showECGGraph)
-              _buildGraphContainer(chartHeight, _ecgChartSeriesController,
-                  ecgChartData, 'ECG', showECGGraph),
-            if (showActivityGraph)
-              _buildGraphContainer(chartHeight, _activityChartSeriesController,
-                  activityChartData, 'Activity', showActivityGraph),
-            if (showRedCountGraph)
-              _buildGraphContainer(chartHeight, _redCountSeriesController,
-                  redCountChartData, 'Red Count', showRedCountGraph),
-          ],
-        ),
+    ),
+    //Add Save Icon to Manually stop recording - place at bottom right space 
+    floatingActionButton: FloatingActionButton.extended(
+      onPressed: _stopRecording, // Save recording when pressed
+      label: Row(
+        children: [
+          const Icon(Icons.save), // Icon for save
+          const SizedBox(width: 8), // Spacing between icon and text
+          const Text('Save'), // Save text
+        ],
       ),
-    );
-  }
+      backgroundColor: Colors.blue, 
+    ),
+    floatingActionButtonLocation: FloatingActionButtonLocation.endFloat, // Positioning at the bottom right
+  );
+}
+
 
   Widget _buildGraphContainer(
     double chartHeight,
@@ -230,7 +301,6 @@ class _ViewGraphState extends State<TestViewGraph> {
       child: Stack(
         children: [
           SfCartesianChart(
-            //Below code fixed lag -using FastLineSeries is optimal for plotting
             series: <FastLineSeries<LiveData, double>>[
               FastLineSeries<LiveData, double>(
                 onRendererCreated: (ChartSeriesController chartController) {
@@ -239,7 +309,6 @@ class _ViewGraphState extends State<TestViewGraph> {
                 dataSource: chartData,
                 xValueMapper: (LiveData data, _) => data.time,
                 yValueMapper: (LiveData data, _) {
-                  // Adjust the mapping based on the graph title
                   if (title == 'Activity') {
                     return data.activity
                         .toDouble(); // Adjusted for binary activity
@@ -250,7 +319,7 @@ class _ViewGraphState extends State<TestViewGraph> {
                   } else if (title == 'Red Count') {
                     return data.redCount.toDouble();
                   }
-                  return 0.0; // Default case
+                  return 0.0;
                 },
               )
             ],
@@ -276,7 +345,6 @@ class _ViewGraphState extends State<TestViewGraph> {
               icon: Icon(visibility ? Icons.visibility : Icons.visibility_off),
               onPressed: () {
                 setState(() {
-                  // Toggle visibility based on the title of the graph
                   if (title == 'Activity') {
                     showActivityGraph = !showActivityGraph;
                   } else if (title == 'ECG') {
