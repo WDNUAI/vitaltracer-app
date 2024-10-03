@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:vitaltracer_app/screens/test_view_graph.dart'; 
 import 'components/recorded_data_session_tile.dart';
-import 'detailed_view_screen.dart';
 import 'package:intl/intl.dart'; // for date formatting
+import 'previous_sessions_graph.dart';
 
 class RecordedDataScreen extends StatefulWidget {
   final List<LiveData>? newRecording;
@@ -147,8 +147,7 @@ void _loadRecordings() {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const DetailedViewScreen(recording: []),
-                  ),
+                      builder: (context) => const PreviousSessionsGraph()),
                 );
               },
               child: const Text('View Details'),
