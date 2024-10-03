@@ -362,4 +362,48 @@ class _ViewGraphState extends State<TestViewGraph> {
       ),
     );
   }
+void _showSettingsMenu() {
+  showModalBottomSheet(
+    context: context,
+    builder: (context) {
+      return Container(
+        padding: const EdgeInsets.all(16.0),
+        child: StatefulBuilder( // Use StatefulBuilder to manage the state of the modal
+          builder: (context, setModalState) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Recording Duration: $recordingDuration minutes',
+                  style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                ),
+                Slider(
+                  //Can adjust to change max lenght of recording sessions device allows for 
+                  value: recordingDuration.toDouble(),
+                  min: 1,
+                  max: 30,
+                  divisions: 15,
+                  label: recordingDuration.toString(),
+                  onChanged: (value) {
+                    setModalState(() { 
+                      //Value the slider is on is set to recording duration in real time - should adjust below button to instead confirm this value.
+                      recordingDuration = value.toInt();
+                    });
+                  },
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                     //close menu after pressing button
+                    Navigator.pop(context); 
+                  },
+                  child: const Text('Change Recording Duration'),
+                ),
+              ],
+            );
+          },
+        ),
+      );
+    },
+  );
+}
 }
