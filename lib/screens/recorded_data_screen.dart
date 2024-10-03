@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'components/recorded_data_session_tile.dart';
-import 'detailed_view_screen.dart';
+import 'previous_sessions_graph.dart';
 import 'package:vitaltracer_app/screens/components/summarized_data_parse_csv.dart';
 
 class RecordedDataScreen extends StatefulWidget {
@@ -57,7 +57,7 @@ class _RecordedDataScreenState extends State<RecordedDataScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const DetailedViewScreen()),
+                      builder: (context) => const PreviousSessionsGraph()),
                 );
               })
         ])));
