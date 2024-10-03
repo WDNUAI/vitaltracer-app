@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:vitaltracer_app/screens/test_view_graph.dart';
 
 class DetailedViewScreen extends StatelessWidget {
-  const DetailedViewScreen({super.key});
+  const DetailedViewScreen({super.key, List<LiveData>? recording});
 
   @override
   Widget build(BuildContext context) {
