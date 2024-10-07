@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vitaltracer_app/screens/detailed_view_screen.dart';
 import 'package:vitaltracer_app/screens/test_view_graph.dart'; 
 import 'components/recorded_data_session_tile.dart';
 import 'package:intl/intl.dart'; // for date formatting
@@ -198,7 +199,7 @@ void _loadRecordings() {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => DetailedViewScreen(recording: recording),
+                        builder: (context) => const PreviousSessionsGraph(),
                       ),
                     );
                   },
