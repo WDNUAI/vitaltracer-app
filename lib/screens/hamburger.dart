@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:vitaltracer_app/screens/test_view_graph.dart';
 import 'settings.dart';
 import 'home_screen.dart';
 import 'bluetooth-connections-screen.dart';
 import 'ble-connections-screen.dart';
 import 'view_detailed_datatype.dart';
-import 'test_view_graph.dart';
 import 'auth_service.dart';
 import 'sign_in_screen.dart';
 import 'recorded_data_screen.dart';

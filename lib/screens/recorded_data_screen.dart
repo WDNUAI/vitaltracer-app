@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:vitaltracer_app/screens/test_view_graph.dart';
+import 'package:vitaltracer_app/screens/detailed_view_screen.dart';
+import 'package:vitaltracer_app/screens/test_view_graph.dart'; 
 import 'components/recorded_data_session_tile.dart';
 import 'package:intl/intl.dart'; // for date formatting
 import 'previous_sessions_graph.dart';
@@ -180,31 +181,31 @@ class _RecordedDataScreenState extends State<RecordedDataScreen> {
         ),
         const SizedBox(height: 10),
         recordings.isNotEmpty
-            ? Column(
-                children: recordings.map((recording) {
-                  final sessionDate = recording[0].recordingDate;
-                  final sessionTime = DateFormat('hh:mm a').format(sessionDate);
+          ? Column(
+              children: recordings.map((recording) {
+              final sessionDate = recording[0].recordingDate;
+                final sessionTime = DateFormat('hh:mm a').format(sessionDate);
 
-                  String sessionTemperature = 'N/A';
-                  String sessionBloodPressure = 'N/A';
+                String sessionTemperature = 'N/A';
+                String sessionBloodPressure = 'N/A';
 
-                  return _buildSessionCard(
-                    date: DateFormat('MMM dd, yyyy').format(sessionDate),
-                    time: sessionTime,
-                    temperature: sessionTemperature,
-                    bloodPressure: sessionBloodPressure,
-                    onDetailsPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const PreviousSessionsGraph(),
-                        ),
-                      );
-                    },
-                  );
-                }).toList(),
-              )
-            : const Text("No recordings available."),
+                return _buildSessionCard(
+                  date: DateFormat('MMM dd, yyyy').format(sessionDate),
+                  time: sessionTime,
+                  temperature: sessionTemperature,
+                  bloodPressure: sessionBloodPressure,
+                  onDetailsPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PreviousSessionsGraph(),
+                      ),
+                    );
+                  },
+                );
+              }).toList(),
+            )
+          : const Text("No recordings available."),
       ],
     );
   }
