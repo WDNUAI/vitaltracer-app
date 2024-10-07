@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart' as sf;
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:async';
-import 'ParseCsv.dart';
+import 'ParseCSV.dart';
 
 class PreviousSessionsGraph extends StatefulWidget {
   const PreviousSessionsGraph({Key? key}) : super(key: key);

@@ -28,48 +28,47 @@ class _RecordedDataScreenState extends State<RecordedDataScreen> {
   List<List<LiveData>> _pastMonthRecordings = [];
 
   @override
-void initState() {
-  super.initState();
-  _loadRecordings();
-
-}
-
-void _loadRecordings() {
-  _allRecordings = RecordingStore().getAllECGRecordings(); // Load all recordings from storage
-
-  final now = DateTime.now();
-  final startOfToday = DateTime(now.year, now.month, now.day); 
-  final oneWeekAgo = startOfToday.subtract(const Duration(days: 7));
-  final oneMonthAgo = startOfToday.subtract(const Duration(days: 30));
-//Make empty live data lists for each recording date time period
-  _todayRecordings = [];
-  _pastWeekRecordings = [];
-  _pastMonthRecordings = [];
-
-
-
-//Sort Stored recordings based on time present in livedata of each recording
-  for (var recording in _allRecordings) {
-    //recording date stored in live data for now- will change when working woith real data
-    final sessionDate = recording[0].recordingDate;
-
-    // check if the recording is from today
-    if (sessionDate.isSameDateAs(now)) {
-      _todayRecordings.add(recording);
-    }
-    // Check if the recording is from the past week - but before today
-    else if (sessionDate.isAfter(oneWeekAgo) && sessionDate.isBefore(startOfToday)) {
-      _pastWeekRecordings.add(recording);
-    }
-    // Check if the recording is from the past month but before the past week
-    else if (sessionDate.isAfter(oneMonthAgo) && sessionDate.isBefore(oneWeekAgo)) {
-      _pastMonthRecordings.add(recording);
-    }
+  void initState() {
+    super.initState();
+    _loadRecordings();
   }
 
-  setState(() {}); // Trigger a rebuild
-}
+  void _loadRecordings() {
+    _allRecordings = RecordingStore()
+        .getAllECGRecordings(); // Load all recordings from storage
 
+    final now = DateTime.now();
+    final startOfToday = DateTime(now.year, now.month, now.day);
+    final oneWeekAgo = startOfToday.subtract(const Duration(days: 7));
+    final oneMonthAgo = startOfToday.subtract(const Duration(days: 30));
+//Make empty live data lists for each recording date time period
+    _todayRecordings = [];
+    _pastWeekRecordings = [];
+    _pastMonthRecordings = [];
+
+//Sort Stored recordings based on time present in livedata of each recording
+    for (var recording in _allRecordings) {
+      //recording date stored in live data for now- will change when working woith real data
+      final sessionDate = recording[0].recordingDate;
+
+      // check if the recording is from today
+      if (sessionDate.isSameDateAs(now)) {
+        _todayRecordings.add(recording);
+      }
+      // Check if the recording is from the past week - but before today
+      else if (sessionDate.isAfter(oneWeekAgo) &&
+          sessionDate.isBefore(startOfToday)) {
+        _pastWeekRecordings.add(recording);
+      }
+      // Check if the recording is from the past month but before the past week
+      else if (sessionDate.isAfter(oneMonthAgo) &&
+          sessionDate.isBefore(oneWeekAgo)) {
+        _pastMonthRecordings.add(recording);
+      }
+    }
+
+    setState(() {}); // Trigger a rebuild
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +83,6 @@ void _loadRecordings() {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-            
               //Build each session grouping
               _buildSessionGroup("Today", _todayRecordings),
               _buildSessionGroup("Past Week", _pastWeekRecordings),
@@ -97,9 +95,9 @@ void _loadRecordings() {
   }
 
   Widget _buildSessionCard({
-    required String date, 
-    required String time, 
-    required String temperature, 
+    required String date,
+    required String time,
+    required String temperature,
     required String bloodPressure,
     VoidCallback? onDetailsPressed,
   }) {
@@ -144,13 +142,14 @@ void _loadRecordings() {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              onPressed: onDetailsPressed ?? () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const PreviousSessionsGraph()),
-                );
-              },
+              onPressed: onDetailsPressed ??
+                  () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const PreviousSessionsGraph()),
+                    );
+                  },
               child: const Text('View Details'),
             ),
           ],
