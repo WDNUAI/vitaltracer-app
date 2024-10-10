@@ -163,7 +163,7 @@ class _FinalInfoScreenState extends State<FinalInfoScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => const HomeScreen()),
+                                      builder: (context) => HomeScreen()),
                                 );
                               }
                             },

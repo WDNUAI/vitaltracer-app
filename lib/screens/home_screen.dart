@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:vitaltracer_app/services/bluetooth_service.dart';
 import '../services/VTDevice.dart';
 import 'bluetooth-connections-screen.dart';
+import 'package:vitaltracer_app/services/heart_rate_service.dart';
 import 'detailed_view_screen.dart';
 import 'components/health_data_tile.dart';
 import 'hamburger.dart';
@@ -125,6 +126,10 @@ class HomeScreenContent extends StatefulWidget {
 class _HomeScreenContentState extends State<HomeScreenContent> {
   Timer? _timer;
   double? _currentTemperature = VTBluetoothService.currentTemperature;
+  int? _currentstepcount = VTBluetoothService.currentStepCount;
+  int _currentHeartRate = 0;
+  int? _currentSpO2;
+
   // ScrollController to manage scrolling behavior
   final ScrollController _scrollController = ScrollController();
   bool _showScrollIndicator = false;
@@ -133,32 +138,57 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
   final Color tileBgColor = Colors.white;
 
   @override
+ 
   void initState() {
     super.initState();
-
-    // Add scroll listener to handle scroll indicator visibility
     _scrollController.addListener(_scrollListener);
+    HeartRateCalculator.startCalculation();
+    _startTimer(); // Add this line to start the timer
+    _updateData(); // Add this line for initial data update
   }
+
 
   @override
   void dispose() {
     _timer?.cancel();
     // Clean up the scroll controller when the widget is disposed
+     HeartRateCalculator.stopCalculation();
     _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
     super.dispose();
   }
 
-void _startTimer() {
+  void _startTimer() {
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      setState(() {
-        _currentTemperature = VTBluetoothService.currentTemperature;
-      });
+     _updateData();
     });
   }
+ 
+ void _updateData() {
+  setState(() {
+    _currentTemperature = VTBluetoothService.currentTemperature;
+    print("Updated temperature: $_currentTemperature"); // Debug log
+    
+    if (VTBluetoothService.currentActivityData != null &&
+        VTBluetoothService.currentActivityData!.isNotEmpty) {
+       _currentstepcount = VTBluetoothService.currentStepCount;
+      print("Updated steps: $_currentstepcount "); // Debug log
+    }
+    
+    if (VTBluetoothService.currentspO2Data != null &&
+        VTBluetoothService.currentspO2Data!.isNotEmpty) {
+      _currentSpO2 = VTBluetoothService.currentspO2Data!.last;
+      print("Updated SpO2: $_currentSpO2"); // Debug log
+    }
+     _currentHeartRate = HeartRateCalculator.currentHeartRate;
+  });
+}
+
+
   // Listener for scroll events to show/hide scroll indicator
   void _scrollListener() {
-    if (_scrollController.offset >= _scrollController.position.maxScrollExtent &&
+    if (_scrollController.offset >=
+            _scrollController.position.maxScrollExtent &&
         !_scrollController.position.outOfRange) {
       setState(() {
         _showScrollIndicator = false;
@@ -239,14 +269,15 @@ void _startTimer() {
                           // Heart Rate tile
                           HealthDataTile(
                             label: 'Heart Rate',
-                            value: '72 BPM',
+                            value: '${_currentHeartRate?.toStringAsFixed(1) ?? "N/A"} BPM',
                             imagePath: 'lib/images/heart.webp',
                             isTablet: _isTablet,
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => const DetailedViewScreen()),
+                                    builder: (context) =>
+                                        const DetailedViewScreen()),
                               );
                             },
                             color: tileBgColor,
@@ -272,7 +303,8 @@ void _startTimer() {
                       // Body Temperature tile
                       HealthDataTile(
                         label: 'Body Temperature',
-                        value:  '${_currentTemperature?.toStringAsFixed(1) ?? "N/A"} °C',
+                        value:
+                            '${_currentTemperature?.toStringAsFixed(1) ?? "N/A"} °C',
                         imagePath: 'lib/images/temp.webp',
                         onTap: () {},
                         color: tileBgColor,
@@ -292,14 +324,15 @@ void _startTimer() {
                           // Steps tile
                           HealthDataTile(
                             label: 'Steps',
-                            value: '10,000 steps',
+                            value: '${ _currentstepcount ?.toStringAsFixed(1) ?? "N/A"} Steps',
                             imagePath: 'lib/images/activity.webp',
                             isTablet: _isTablet,
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => const DetailedViewScreen()),
+                                    builder: (context) =>
+                                        const DetailedViewScreen()),
                               );
                             },
                             color: tileBgColor,
@@ -307,14 +340,15 @@ void _startTimer() {
                           // SPO2 tile
                           HealthDataTile(
                             label: 'SPO2',
-                            value: '92%',
+                            value: '${_currentSpO2?.toStringAsFixed(1) ?? "N/A"} %',
                             imagePath: 'lib/images/O2.webp',
                             isTablet: _isTablet,
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => const DetailedViewScreen()),
+                                    builder: (context) =>
+                                        const DetailedViewScreen()),
                               );
                             },
                             color: tileBgColor,
@@ -325,7 +359,8 @@ void _startTimer() {
                       // Activity section
                       Text(
                         'Activity',
-                        style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 18.sp, fontWeight: FontWeight.bold),
                       ),
                       SizedBox(height: 8.h),
                       // Horizontal scrollable list of activity tiles
@@ -581,3 +616,4 @@ void _startTimer() {
     );
   }
 }
+

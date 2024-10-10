@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:vitaltracer_app/screens/test_view_graph.dart';
 
 class DetailedViewScreen extends StatelessWidget {
-  const DetailedViewScreen({super.key});
+  const DetailedViewScreen({super.key, List<LiveData>? recording});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +25,8 @@ class DetailedViewScreen extends StatelessWidget {
           ),
 
           //Add Image - needs to be removed in future
-          const SizedBox(height: 16), // Add space between the title and the image
+          const SizedBox(
+              height: 16), // Add space between the title and the image
           //Place Image in center of scrren
           Center(
             child: Image.asset('lib/images/ECGData.png'),
