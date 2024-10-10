@@ -16,10 +16,15 @@ Future<List<BluetoothDevice>> search(State<ClassicConnectionsScreen> screen) asy
   if (await Permission.locationWhenInUse.isDenied){
     return Future<List<BluetoothDevice>>.error(Exception("Bluetooth not supported"));
   }
-  FlutterBluetoothSerial.instance.startDiscovery().listen((r) {
-    log("found device.");
-    devices.add(r.device);
-    screen.setState(() {});
+  FlutterBluetoothSerial.instance.isDiscovering.then((isDiscovering) {
+    if (!isDiscovering!) {
+      FlutterBluetoothSerial.instance.startDiscovery().listen((r) {
+        log("found device.");
+        devices.add(r.device);
+        screen.setState(() {});
+      });
+    }
   });
   return devices;
 }
+

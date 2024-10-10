@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import '../services/VTDevice.dart';
 import 'hamburger.dart';
 import '../services/bluetooth.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
@@ -61,7 +64,7 @@ class ClassicConnectionsScreenState extends State<ClassicConnectionsScreen> {
                     onPressed: () {
                       setState(() {
                         // Perform a search for Bluetooth Classic devices
-                        blcDevices = searchBlc();
+                        blcDevices = search(this);
                       });
                     },
                     child: const Padding(
@@ -86,8 +89,14 @@ class ClassicConnectionsScreenState extends State<ClassicConnectionsScreen> {
             List<Widget> cards = [];
             // Create a list of cards that reflects the current state of our scan.
             for (int i = 0; i < snapshot.data!.length; i++) {
-              cards.add(deviceCard(snapshot.data![i].address,
-                  snapshot.data![i].name.toString(), context));
+              if (snapshot.data![i].name.toString().contains("VT-Patch")) {
+                cards.add(deviceCard(snapshot.data![i].address,
+                    snapshot.data![i].name.toString(), context));
+                VTDevice().setMacAddress(snapshot.data![i].address);
+                VTDevice().setName(snapshot.data![i].name.toString());
+              }
+
+
             }
             return Column(children: cards);
           } else if (snapshot.hasError) {
@@ -112,7 +121,8 @@ Card deviceCard(String titleText, String subHeading, BuildContext context) {
       child: InkWell(
           splashColor: const Color.fromARGB(255, 199, 214, 226).withAlpha(30),
           onTap: () {
-            // TODO: device pairing functionality
+            log(VTDevice().getName().toString());
+            VTDevice().pair();
           },
           child: Column(
             children: [
@@ -132,8 +142,3 @@ Card deviceCard(String titleText, String subHeading, BuildContext context) {
           )));
 }
 
-/// Example searchBlc function definition
-Future<List<blc.BluetoothDevice>> searchBlc() async {
-  // Implement logic to search for Bluetooth Classic devices
-  return []; // Return a list of discovered devices
-}
