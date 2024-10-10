@@ -13,8 +13,12 @@ import '../screens/bluetooth-connections-screen.dart';
 Future<List<BluetoothDevice>> search(State<ClassicConnectionsScreen> screen) async {
   List<BluetoothDevice> devices = [];
   await Permission.locationWhenInUse.request();
+  await Permission.bluetoothScan.request();
   if (await Permission.locationWhenInUse.isDenied){
     return Future<List<BluetoothDevice>>.error(Exception("Bluetooth not supported"));
+  }
+  if (await Permission.bluetoothScan.isDenied){
+    return Future<List<BluetoothDevice>>.error(Exception("Bluetooth scanning permissions not granted."));
   }
   FlutterBluetoothSerial.instance.isDiscovering.then((isDiscovering) {
     if (!isDiscovering!) {
