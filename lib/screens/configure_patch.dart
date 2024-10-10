@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:vitaltracer_app/models/theme_notifier.dart';
+import 'package:vitaltracer_app/services/VTDevice.dart';
 import 'detailed_view_screen.dart';
 import 'ble-connections-screen.dart';
 import 'components/health_data_tile.dart';
@@ -67,13 +68,12 @@ class _ConfigurePatchContentState extends State<ConfigurePatchContent> {
                           child: Text("Configure over Bluetooth",textScaler: TextScaler.linear(1.8))
                         ),
                         GestureDetector(
-                            onTap: () {log("working");},
+                            onTap: () {VTDevice().close();},
                             // enables the entire row to be tapable rather than just the text itself.
                             behavior: HitTestBehavior.translucent,
                             child:
                         Row(
                           children: [
-
                             Container(
                                 padding: EdgeInsets.only(left: 16.0),
                             child: Icon(Icons.power_settings_new)
@@ -81,7 +81,7 @@ class _ConfigurePatchContentState extends State<ConfigurePatchContent> {
                             Container(
 
                                 padding: EdgeInsets.all(16.0),
-                                child: Text("Factory Reset",textScaler: TextScaler.linear(1.5))
+                                child: Text("Disconnect from this patch",textScaler: TextScaler.linear(1.5))
 
                             )
                           ],
@@ -95,6 +95,13 @@ class _ConfigurePatchContentState extends State<ConfigurePatchContent> {
   }
 
   Widget buildTopTile(BuildContext context) {
+    bool isConnected;
+    if (VTDevice().isConnected() == null) {
+      isConnected = false;
+    } else {
+      isConnected = VTDevice().isConnected()!;
+    }
+
     return Container(
       margin: EdgeInsets.all(16.0.w),
       decoration: BoxDecoration(
@@ -118,22 +125,28 @@ class _ConfigurePatchContentState extends State<ConfigurePatchContent> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: 8),
-                Text('VT-Patch 1',
-                  textScaler: TextScaler.linear(1.5)),
-                Text('00-B0-D0-63-C2-26',
-                    textScaler: TextScaler.linear(1.2)),
+                Text(VTDevice().getName().toString(),
+                  textScaler: TextScaler.linear(1.2)),
                 SizedBox(height: 8.h),
+                if (isConnected) ... [
                 Text(
                   'Connected',
                   style: TextStyle(color: Colors.green),
-                  textScaler: TextScaler.linear(1.5),
+                  textScaler: TextScaler.linear(1.2),
                 ),
+              ] else ... [
+                  Text(
+                    'No VT Device connected.',
+                    style: TextStyle(color: Colors.black),
+                    textScaler: TextScaler.linear(1.2),
+                  ),
+                ]
               ],
             ),
             // Device image
             Image.asset(
               'lib/images/vt1.png',
-              height: 100.h,
+              height: 80.h,
               fit: BoxFit.contain,
             ),
           ],

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import '../services/VTDevice.dart';
 import '../services/bluetooth_service.dart';
 
 // The TestViewGraph widget is a stateful widget that displays real-time ECG data in a line chart.
@@ -37,15 +38,17 @@ class _TestViewGraphState extends State<ViewGraph> {
   // Method to initialize data collection from the Bluetooth service
   void _initializeData() {
     // Subscribe to the ECG data stream
-    ecgSubscription = VTBluetoothService.ecgStream.listen((ecgData) {
-      // Check if the widget is still mounted to avoid errors when updating state
-      if (mounted) {
-        setState(() {
-          // Add the new ECG data to the chart data
-          _addEcgData(ecgData);
-        });
-      }
-    });
+      ecgSubscription = VTDevice().controller.stream.listen((ecgData) {
+        // Check if the widget is still mounted to avoid errors when updating state
+        if (mounted) {
+          setState(() {
+            // Add the new ECG data to the chart data
+            _addEcgData(ecgData);
+          });
+        }
+      });
+
+
   }
 
   // Method to add new ECG data points to the chart data
@@ -53,14 +56,11 @@ class _TestViewGraphState extends State<ViewGraph> {
     // Get the current time in seconds
     final currentTime = DateTime.now().millisecondsSinceEpoch / 1000.0;
     // Iterate over the ECG data, converting each pair of bytes to a value
-    for (int i = 0; i < ecgData.length; i += 2) {
-      // Combine two bytes to form the ECG value
-      int value = (ecgData[i + 1] << 8) | ecgData[i];
+      int value = ecgData[0];
       // Calculate the time for each data point
-      double time = currentTime - startTime + (i / 2) / xScaleFactor;
+      double time = currentTime - startTime / xScaleFactor;
       // Add the new data point to the chart data list
       ecgChartData.add(LiveData(time, value));
-    }
 
     // Remove old data points if the list exceeds the maximum size
     while (ecgChartData.length > maxDataPoints) {

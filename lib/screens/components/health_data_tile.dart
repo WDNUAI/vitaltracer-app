@@ -1,6 +1,18 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:vitaltracer_app/screens/home_screen.dart';
+import '../../services/VTDevice.dart';
 import '../ble-connections-screen.dart';
+import '../bluetooth-connections-screen.dart';
+
+// SIZE CONSTANTS
+double imageSize = 50;
+double titleText = 16;
+double subtitleText = 14;
+double margin = 16.0;
+double activityPadding = 16.0;
 
 /// A versatile widget for displaying various types of health data tiles
 class HealthDataTile extends StatelessWidget {
@@ -11,16 +23,9 @@ class HealthDataTile extends StatelessWidget {
   final VoidCallback onTap;
   final Color color;
   final bool isTemperature;
-  final bool isTopTile;
   final bool isActivity;
   final bool isTablet;
 
-  // SIZE CONSTANTS
-  double imageSize = 50;
-  double titleText = 16;
-  double subtitleText = 14;
-  double margin = 16.0;
-  double activityPadding = 16.0;
   /// Constructor for the HealthDataTile
   ///
   /// [label]: The title or name of the health data
@@ -40,7 +45,6 @@ class HealthDataTile extends StatelessWidget {
     required this.color,
     required this.isTablet,
     this.isTemperature = false,
-    this.isTopTile = false,
     this.isActivity = false,
   }) : super(key: key);
 
@@ -54,113 +58,13 @@ class HealthDataTile extends StatelessWidget {
       activityPadding /= 2;
     }
     // Determine which type of tile to build based on the flags
-    if (isTopTile) {
-      return _buildTopTile(context);
-    } else if (isTemperature) {
+    if (isTemperature) {
       return _buildTemperatureTile();
     } else if (isActivity) {
       return _buildActivityTile();
     } else {
       return _buildStandardTile();
     }
-  }
-
-  /// Builds the top tile containing device information and selection
-  Widget _buildTopTile(BuildContext context) {
-    double paddingHori = 16.0;
-    double paddingVert = 16.0;
-    RotatedBox vtImage = RotatedBox(
-        quarterTurns: 0,
-        child: Image.asset(
-      imagePath,
-      height: 80.h,
-      fit: BoxFit.contain,
-      )
-    );
-    ElevatedButton chooseDeviceButton =  ElevatedButton(
-      style: ElevatedButton.styleFrom(
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(32.0)),
-      minimumSize: const Size(140, 45), //////// HERE
-      ),
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => const BluetoothConnectionsScreen()),
-        );
-      },
-      child: Text('Choose Device'),
-
-    );
-
-
-    if (isTablet) {
-      vtImage = RotatedBox(
-        quarterTurns: 3,
-        child: Image.asset(
-          imagePath,
-          height: 200.h,
-          fit: BoxFit.contain,
-        )
-      );
-      ElevatedButton chooseDeviceButton =  ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(32.0)),
-          minimumSize: const Size(200, 75), //////// HERE
-        ),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => const BluetoothConnectionsScreen()),
-          );
-        },
-        child: Text('Choose Device'),
-
-      );
-    }
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: paddingVert.h, horizontal: paddingHori.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            spreadRadius: 1,
-            blurRadius: 5,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(8.0.w),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 8.h),
-                // Button to choose a device
-                chooseDeviceButton,
-                SizedBox(height: 8.h),
-                // Help text
-                Text(
-                  'Having trouble? View help',
-                  style: TextStyle(fontSize: subtitleText.sp, color: Colors.blue),
-                ),
-              ],
-            ),
-            // Device image
-
-            vtImage,
-          ],
-        ),
-      ),
-    );
   }
 
   /// Builds a standard health data tile
@@ -267,4 +171,132 @@ class HealthDataTile extends StatelessWidget {
       ),
     );
   }
+}
+
+
+class TopTile extends StatelessWidget {
+  // Properties for configuring the top tile
+  final String label;
+  final String value;
+  final String imagePath;
+  final VoidCallback buttonCallback;
+  final bool isTablet;
+
+  /// Constructor for the TopTile
+  TopTile({
+    Key? key,
+    required this.label,
+    required this.value,
+    required this.imagePath,
+    required this.buttonCallback,
+    required this.isTablet,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (isTablet) {
+      imageSize *= 1.50;
+      titleText *= .50;
+      subtitleText *= .50;
+      margin = 16;
+      activityPadding /= 2;
+    }
+
+    return _buildTopTile(context);
+  }
+
+  /// Builds the top tile containing device information and selection
+  Widget _buildTopTile(BuildContext context) {
+    double paddingHori = 16.0;
+    double paddingVert = 16.0;
+    Color backgroundColor = Colors.white;
+    String btnText = "Choose Device";
+    if (VTDevice().isConnected()) {
+      backgroundColor = Colors.green;
+      if (VTDevice().isRecording) {
+        btnText = "Stop Recording";
+      } else {
+        btnText = "Start Recording";
+      }
+    }
+
+    RotatedBox vtImage = RotatedBox(
+        quarterTurns: 0,
+        child: Image.asset(
+          imagePath,
+          height: 80.h,
+          fit: BoxFit.contain,
+        )
+    );
+    ElevatedButton button =  ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(32.0)),
+        minimumSize: const Size(140, 45),
+      ),
+      onPressed: buttonCallback,
+      child: Text(btnText),
+    );
+    if (isTablet) {
+      vtImage = RotatedBox(
+          quarterTurns: 3,
+          child: Image.asset(
+            imagePath,
+            height: 200.h,
+            fit: BoxFit.contain,
+          )
+      );
+
+    }
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: paddingVert.h, horizontal: paddingHori.w),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(15.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(8.0.w),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+
+                SizedBox(height: 8.h),
+                button,
+                Text(
+                  '',
+                  style: TextStyle(fontSize: subtitleText.sp, color: Colors.blue),
+                ),
+                if (VTDevice().isConnected()!) ... [
+                  SizedBox(height: 8.h),
+                  Text('Established connection with \n' + VTDevice().getName().toString(),
+                    style: TextStyle(fontSize: subtitleText.sp, color: Colors.black),
+                  )
+                  // Help text
+                ] else ...  [
+                  Text('Having Trouble Connecting?\nView Help \n',
+                    style: TextStyle(fontSize: subtitleText.sp, color: Colors.blueAccent),
+                  )
+                ]
+              ],
+            ),
+            // Device image
+            vtImage,
+          ],
+        ),
+      ),
+    );
+  }
+
+
 }

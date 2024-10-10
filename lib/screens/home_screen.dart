@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:vitaltracer_app/services/bluetooth_service.dart';
+import '../services/VTDevice.dart';
+import 'bluetooth-connections-screen.dart';
 import 'package:vitaltracer_app/services/heart_rate_service.dart';
 import 'detailed_view_screen.dart';
 import 'components/health_data_tile.dart';
@@ -9,9 +12,13 @@ import 'ble-connections-screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'ecg_test_graph.dart';
 import 'settings.dart';
+import 'dart:isolate';
 
 int appBarFontSize = 0;
 bool _isTablet = false;
+bool connectionState = false;
+
+
 
 /// Main HomeScreen widget that sets up the app's structure
 class HomeScreen extends StatelessWidget {
@@ -21,6 +28,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     if (MediaQuery.of(context).size.shortestSide > 600 && MediaQuery.of(context).orientation == Orientation.landscape) {
       _isTablet = true;
       appBarFontSize = 7;
@@ -28,6 +36,7 @@ class HomeScreen extends StatelessWidget {
       _isTablet = false;
       appBarFontSize = 15;
     }
+
     return Scaffold(
       // App bar configuration
       appBar: AppBar(
@@ -193,15 +202,38 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
 
   @override
   Widget build(BuildContext context) {
+    // Setup behavior of the button based on it's state.
+    VoidCallback topTileButtonCallback = () {
+      if (VTDevice().isConnected()) {
+        if (!VTDevice().isRecording) {
+          VTDevice().startRecording();
+        } else {
+          VTDevice().stopRecording();
+        }
+      } else {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => const ClassicConnectionsScreen()),
+        );
+      }
+      setState(() {});
+    };
+
+    VTDevice().onConnectionStatusChange(() {
+      connectionState = VTDevice().isConnected()!;
+      setState(() {});
+    });
+
     if (_isTablet) {
-      return tabletContent();
+      return tabletContent(topTileButtonCallback);
     } else {
-      return phoneContent();
+      return phoneContent(topTileButtonCallback);
     }
 
   }
 
-  Stack phoneContent() {
+  Stack phoneContent(VoidCallback btnCallback) {
     return Stack(
       children: [
         // Main scrollable content
@@ -213,13 +245,11 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Top tile with device information
-                HealthDataTile(
+                TopTile(
                   label: 'Top Tile',
                   value: '',
                   imagePath: 'lib/images/vt1.png',
-                  onTap: () {},
-                  color: Colors.white,
-                  isTopTile: true,
+                  buttonCallback: btnCallback,
                   isTablet: _isTablet,
                 ),
                 Padding(
@@ -398,7 +428,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
     );
   }
 
-  Stack tabletContent() {
+  Stack tabletContent(VoidCallback btnCallback) {
     return Stack(
       children: [
         // Main scrollable content
@@ -410,13 +440,11 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Top tile with device information
-                HealthDataTile(
+                TopTile(
                   label: 'Top Tile',
                   value: '',
                   imagePath: 'lib/images/vt1.png',
-                  onTap: () {},
-                  color: Colors.white,
-                  isTopTile: true,
+                  buttonCallback: btnCallback,
                   isTablet: _isTablet,
                 ),
                 Padding(
@@ -471,7 +499,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                             color: tileBgColor,
                             isTablet: _isTablet,
                           ),
-                          // Steps tile
+                          // Step tile
                           HealthDataTile(
                             label: 'Steps',
                             value: '10,000 steps',
