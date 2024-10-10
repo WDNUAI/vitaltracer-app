@@ -26,10 +26,10 @@ class VTBluetoothService {
   static List<int>? currentspO2Data;
 
   // UUID for temperature service.
-  static const String TEMPERATURE_SERVICE_UUID = "1809";
+  static const String TEMPERATURE_SERVICE_UUID = "1814";
 
   // UUID for temperature characteristic.
-  static const String TEMPERATURE_CHARACTERISTIC_UUID = "2A1C";
+  static const String TEMPERATURE_CHARACTERISTIC_UUID = "2A53";
 
   // UUID for ECG service.
   static const String ECG_SERVICE_UUID = "181D";
@@ -38,10 +38,10 @@ class VTBluetoothService {
   static const String ECG_CHARACTERISTIC_UUID = "2A37";
 
   // UUID for Activity service.
-  static const String ACTIVITY_SERVICE_UUID = "1814"; 
+  static const String ACTIVITY_SERVICE_UUID = "1809";  //1814
 
   // UUID for Activity characteristic.
-  static const String ACTIVITY_CHARACTERISTIC_UUID = "2A53"; 
+  static const String ACTIVITY_CHARACTERISTIC_UUID = "2A1C"; //2a53
 
 // UUID for SPO2 service.
   static const String SPO2_SERVICE_UUID = "1822";

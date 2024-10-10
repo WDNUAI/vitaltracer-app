@@ -76,6 +76,10 @@ class _ViewGraphState extends State<TestViewGraph> {
   List<LiveData> irChartData = [];
   List<LiveData> activityChartData = [];
   List<LiveData> redCountChartData = [];
+   List<LiveData> ecgRecordedData = [];
+  List<LiveData> irRecordedData = [];
+  List<LiveData> activityRecordedData = [];
+  List<LiveData> redCountRecordedData = [];
   ChartSeriesController? _ecgChartSeriesController;
   ChartSeriesController? _irChartSeriesController;
   ChartSeriesController? _activityChartSeriesController;
@@ -94,14 +98,15 @@ class _ViewGraphState extends State<TestViewGraph> {
   late StreamSubscription<double> temperatureSubscription;
   Timer? _chartUpdateTimer;
   //Adjust in future to whatever the default time is for patch
-  int recordingDuration = 30;
+  Timer? _recordingTimer;
+  int recordingDuration = 2;
 
   @override
   void initState() {
     super.initState();
     startTime = DateTime.now().millisecondsSinceEpoch / 1000.0;
     _initializeData();
-
+    _startRecordingTimer();
     // Update chart at regular intervals (e.g., every 200 ms)
     _chartUpdateTimer =
         Timer.periodic(const Duration(milliseconds: 100), (timer) {
@@ -111,6 +116,7 @@ class _ViewGraphState extends State<TestViewGraph> {
         });
       }
     });
+    
   }
 
   void _initializeData() {
@@ -130,7 +136,7 @@ class _ViewGraphState extends State<TestViewGraph> {
 
 // Add this variable to store the last activity value
   int lastActivityValue = 0; // Start with 0 as the default value
-  void _addDataInBatch(List<int> data, String source) {
+   void _addDataInBatch(List<int> data, String source) {
     final currentTime = DateTime.now().millisecondsSinceEpoch / 1000.0;
     DateTime now = DateTime.now();
     int batchSize = 275; // Adjust the batch size to plot more points
@@ -140,22 +146,34 @@ class _ViewGraphState extends State<TestViewGraph> {
 
       if (source == 'ECG') {
         int ecgValue = (data[i + 1] << 8) | data[i];
-        ecgChartData.add(LiveData(time, ecgValue, 0, 0, 0,now));
+        ecgChartData.add(LiveData(time, ecgValue, 0, 0, 0, now));
+        ecgRecordedData.add(LiveData(time, ecgValue, 0, 0, 0, now)); // Store separately
       } else if (source == 'IR') {
         int irValue = (data[i + 1] << 8) | data[i];
-        irChartData.add(LiveData(time, 0, irValue, 0, 0,now));
+        irChartData.add(LiveData(time, 0, irValue, 0, 0, now));
+        irRecordedData.add(LiveData(time, 0, irValue, 0, 0, now)); // Store separately
       } else if (source == 'Activity') {
         int activityValue = (data[i + 1] << 8) | data[i];
-        activityValue = activityValue > 0
-            ? 1
-            : 0; // Binary transformation - values can only be 1 or zero
-        activityChartData.add(LiveData(time, 0, 0, activityValue, 0,now));
+        activityValue = activityValue > 0 ? 1 : 0; // Binary transformation
+        activityChartData.add(LiveData(time, 0, 0, activityValue, 0, now));
+        activityRecordedData.add(LiveData(time, 0, 0, activityValue, 0, now)); // Store separately
       } else if (source == 'RedCount') {
         int redCountValue = (data[i + 1] << 8) | data[i];
-        redCountChartData.add(LiveData(time, 0, 0, 0, redCountValue,now));
+        redCountChartData.add(LiveData(time, 0, 0, 0, redCountValue, now));
+        redCountRecordedData.add(LiveData(time, 0, 0, 0, redCountValue, now)); // Store separately
       }
     }
   }
+
+
+void _startRecordingTimer() {
+    // Cancel any previous timer
+    _recordingTimer?.cancel();
+
+    // Start a new recording timer based on the recording duration
+    _recordingTimer = Timer(Duration(minutes: recordingDuration), () {
+      _stopRecording(); // Save the data after the set duration
+    });}
 
   void _updateChart() {
     double currentTime = DateTime.now().millisecondsSinceEpoch / 1000.0;
@@ -187,18 +205,27 @@ class _ViewGraphState extends State<TestViewGraph> {
 
   // Stop the recording and save data to the RecordingStore
   void _stopRecording() {
-    //Adjjust for bluetooth classic  - will not have multiple streams but will need to cancel stream/stop
+
+     // Check if there's any recorded data before saving- modify to include all data types when neccesary
+  if (ecgRecordedData.isEmpty &&  activityRecordedData.isEmpty ) {
+    // Show an error message if no data is available
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("No data to save. Please record some data before saving."),
+      ),
+    );
+    return; // Exit early if no data
+  }
     ecgSubscription.cancel();
     activitySubscription.cancel();
 
     // Save data to RecordingStore
     RecordingStore().saveRecording(
-      ecgData: ecgChartData,
-      irData: irChartData,
-      activityData: activityChartData,
-      redCountData: redCountChartData,
-      //Send The current Data
-      recordingDate: DateTime.now()
+      ecgData: ecgRecordedData, // Use separate recording data
+      irData: irRecordedData,
+      activityData: activityRecordedData,
+      redCountData: redCountRecordedData,
+      recordingDate: DateTime.now(),
     );
 //When save button is pushed, change context to RecordedData Screen to create widget
      Navigator.push(
@@ -212,6 +239,7 @@ class _ViewGraphState extends State<TestViewGraph> {
   void dispose() {
     ecgSubscription.cancel();
     _chartUpdateTimer?.cancel();
+    _recordingTimer?.cancel();
     super.dispose();
   }
   @override
@@ -362,6 +390,7 @@ class _ViewGraphState extends State<TestViewGraph> {
       ),
     );
   }
+
 void _showSettingsMenu() {
   showModalBottomSheet(
     context: context,
@@ -393,8 +422,16 @@ void _showSettingsMenu() {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                     //close menu after pressing button
-                    Navigator.pop(context); 
+                    // Close the modal
+                    Navigator.pop(context);
+
+                    // Cancel any previous timer
+                    _recordingTimer?.cancel();
+
+                    // Start a new timer based on the recording duration (converted to seconds)
+                    _recordingTimer = Timer(Duration(minutes: recordingDuration), () {
+                      _stopRecording(); // Save the data after the set duration
+                    });
                   },
                   child: const Text('Change Recording Duration'),
                 ),
