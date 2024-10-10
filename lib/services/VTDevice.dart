@@ -10,7 +10,7 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 /// Class to represent the relevant information about the patch.
 /// TODO: Eventually I think we should have every relevant piece of data
 /// TODO: accessible in this class (i.e ECG, PPG, etc)
-/// TODO: but for now it's just list of ints.
+/// TODO: but for now the data is just list of ints.
 class VTResponse {
   Uint8List data = Uint8List(0);
   Timestamp timestamp = Timestamp.now();
@@ -31,7 +31,7 @@ class VTDevice {
 
   String? macAddress_;
   String? name_;
-  bool isRecording_ = false;
+  bool isRecording = false;
 
   // the current recording interval in seconds
   int interval_ = DEFAULT_INTERVAL;
@@ -129,27 +129,27 @@ class VTDevice {
       // initialize our response data
       response?.data = data;
       response?.timestamp = Timestamp.now();
-      if (isRecording_) {
+      if (isRecording) {
         await Future.delayed(Duration(seconds: VTDevice().getInterval()), (){
           sendMessage(GET_DATA);
         });
       }
 
     }).onDone(() {
-      // the PATCH disconnected us, we don't get into onDone() if we disconnect
-      // todo: double check if above is true.
+      // We've disconnected from the patch. (either we've disconnected or the
+      // patch has disconnected.)
       print('Disconnected!');
-      connection_.value = null;
+      close();
     });
   }
 
   void startRecording() {
-    isRecording_ = true;
+    isRecording = true;
     sendMessage("@h#");
   }
 
   void stopRecording() {
-    isRecording_ = false;
+    isRecording = false;
   }
 
   // Closes the connection
@@ -159,7 +159,7 @@ class VTDevice {
       connection_.value?.dispose();
       macAddress_ = null;
       name_ = null;
-      isRecording_ = false;
+      isRecording = false;
 
     }
 
