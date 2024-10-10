@@ -75,7 +75,7 @@ class _RecordedDataScreenState extends State<RecordedDataScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Previous Sessions'),
-        backgroundColor: const Color.fromARGB(255, 43, 87, 249),
+        backgroundColor:  Colors.blue,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -99,6 +99,7 @@ class _RecordedDataScreenState extends State<RecordedDataScreen> {
     required String time,
     required String temperature,
     required String bloodPressure,
+    required List<LiveData> recording, 
     VoidCallback? onDetailsPressed,
   }) {
     return Card(
@@ -142,14 +143,35 @@ class _RecordedDataScreenState extends State<RecordedDataScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              onPressed: onDetailsPressed ??
-                  () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const PreviousSessionsGraph()),
-                    );
-                  },
+              onPressed: () {
+                // Extract the necessary data for each type (e.g., ECG, IR, Red, Activity)
+                List<RecordedData> ecgData = recording
+                    .map((data) => RecordedData(data.time, data.ecg, 0, 0, 0))
+                    .toList();
+                List<RecordedData> irData = recording
+                    .map((data) => RecordedData(data.time, 0, data.irCount, 0, 0))
+                    .toList();
+                List<RecordedData> redData = recording
+                    .map((data) => RecordedData(data.time, 0, 0, data.redCount, 0))
+                    .toList();
+                List<RecordedData> activityData = recording
+                    .map((data) => RecordedData(data.time, 0, 0, 0, data.activity))
+                    .toList();
+              final recordingDate = recording[0].recordingDate;
+                // Navigate to the graph page with all the recorded data
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PreviousSessionsGraph(
+                      ecgData: ecgData,
+                      irData: irData,
+                      redData: redData,
+                      activityData: activityData,
+                      recordingDate: recordingDate,
+                    ),
+                  ),
+                );
+              },
               child: const Text('View Details'),
             ),
           ],
@@ -189,26 +211,40 @@ class _RecordedDataScreenState extends State<RecordedDataScreen> {
                 String sessionTemperature = 'N/A';
                 String sessionBloodPressure = 'N/A';
 
-                return _buildSessionCard(
-                  date: DateFormat('MMM dd, yyyy').format(sessionDate),
-                  time: sessionTime,
-                  temperature: sessionTemperature,
-                  bloodPressure: sessionBloodPressure,
-                  onDetailsPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const PreviousSessionsGraph(),
+              // Extract data for the graph
+              List<RecordedData> ecgData = recording.map((data) => RecordedData(data.time, data.ecg, 0, 0, 0)).toList();
+              List<RecordedData> irData = recording.map((data) => RecordedData(data.time, 0, data.irCount, 0, 0)).toList();
+              List<RecordedData> redData = recording.map((data) => RecordedData(data.time, 0, 0, data.redCount, 0)).toList();
+              List<RecordedData> activityData = recording.map((data) => RecordedData(data.time, 0, 0, 0, data.activity)).toList();
+  
+              return _buildSessionCard(
+                date: DateFormat('MMM dd, yyyy').format(sessionDate),
+                time: sessionTime,
+                temperature: sessionTemperature,
+                bloodPressure: sessionBloodPressure,
+                recording: recording, 
+                onDetailsPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PreviousSessionsGraph(
+                        ecgData: ecgData,
+                        irData: irData,
+                        redData: redData,
+                        activityData: activityData,
+                         recordingDate: sessionDate,
                       ),
-                    );
-                  },
-                );
-              }).toList(),
-            )
-          : const Text("No recordings available."),
-      ],
-    );
-  }
+                    ),
+                  );
+                },
+              );
+            }).toList(),
+          )
+        : const Text("No recordings available."),
+    ],
+  );
+}
+
 }
 
 //Comparison to check if two date times are identical and belong in today group
